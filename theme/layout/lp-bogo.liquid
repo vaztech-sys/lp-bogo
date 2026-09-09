@@ -24,16 +24,33 @@
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
 
-    <title>
-      {{ page_title }}
-      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
-    </title>
+    {%- comment -%}
+      Campaign SEO and share card. Set here rather than left to the theme's
+      meta-tags snippet, which falls back to the store name: the shop has no
+      meta description, so a shared link would preview as just "Malbor Coatings
+      USA". This layout serves only the campaign, so the copy belongs to it.
+    {%- endcomment -%}
 
-    {% if page_description %}
-      <meta name="description" content="{{ page_description | escape }}">
-    {% endif %}
+    {%- assign lp_title = 'Buy 1, Get 1 Free — Malbor Classic Line Gallons' -%}
+    {%- assign lp_description = 'Buy 1 and get 1 free on every 3.78L gallon in the Malbor Classic Line. SiO2 protection built for saltwater and sun, proven on gelcoat and paint. While stock lasts.' -%}
+    {%- assign lp_image = 'lp-bogo-hero.png' | asset_img_url: '1200x630', crop: 'center' | prepend: 'https:' -%}
 
-    {% render 'meta-tags' %}
+    <title>{{ lp_title }}</title>
+    <meta name="description" content="{{ lp_description | escape }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ shop.name | escape }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:title" content="{{ lp_title | escape }}">
+    <meta property="og:description" content="{{ lp_description | escape }}">
+    <meta property="og:image" content="{{ lp_image }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ lp_title | escape }}">
+    <meta name="twitter:description" content="{{ lp_description | escape }}">
+    <meta name="twitter:image" content="{{ lp_image }}">
 
     {{ content_for_header }}
 
