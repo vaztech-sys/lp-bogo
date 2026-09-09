@@ -1,0 +1,548 @@
+{%- comment -%}
+  Malbor BOGO campaign landing page.
+
+  Converted from the React prototype at src/LandingPage.tsx. Two things changed
+  deliberately in the port:
+
+  1. Product name, price and availability come from the Shopify product object
+     rather than a hardcoded array, so the page can never quote a price the
+     checkout disagrees with.
+  2. Every card is a real /cart/add form, so adding to cart works without JS
+     and the drawer reflects the actual cart (including the discount Shopify
+     applied, not a number computed in the browser).
+{%- endcomment -%}
+
+{{ 'lp-bogo.css' | asset_url | stylesheet_tag }}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap"
+>
+
+{%- liquid
+  assign trust_items = section.settings.trust_items | strip | newline_to_br | split: '<br />'
+  assign terms = section.settings.terms | strip | newline_to_br | split: '<br />'
+  assign product_blocks = section.blocks | where: 'type', 'product'
+  assign step_blocks = section.blocks | where: 'type', 'step'
+-%}
+
+<div
+  class="lp-bogo"
+  data-lp-bogo
+  data-cart-open="false"
+  data-money-format="{{ shop.money_format | strip_html | escape }}"
+>
+  <p class="lp-visually-hidden" role="status" aria-live="polite" data-lp-live></p>
+
+  {%- comment -%} ── Header ─────────────────────────────────────────────── {%- endcomment -%}
+  <header class="lp-header">
+    <div class="lp-header__inner">
+      {% render 'lp-bogo-logo' %}
+
+      <nav class="lp-nav" aria-label="Landing page sections">
+        <a href="#lp-products">PRODUCTS</a>
+        <a href="#lp-how-it-works">HOW IT WORKS</a>
+        <a href="#lp-contact">CONTACT</a>
+      </nav>
+
+      <div class="lp-header__actions">
+        <button
+          type="button"
+          class="lp-cart-toggle"
+          data-lp-open
+          aria-label="Open cart"
+        >
+          {% render 'lp-bogo-cart-icon' %}
+          <span
+            class="lp-cart-toggle__count"
+            data-lp-count
+            {% if cart.item_count == 0 %}hidden{% endif %}
+          >{{ cart.item_count }}</span>
+        </button>
+
+        <a class="lp-btn" href="#lp-products">{{ section.settings.header_cta }}</a>
+      </div>
+    </div>
+  </header>
+
+  {%- comment -%} ── Hero ───────────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-hero">
+    <div class="lp-hero__copy">
+      {%- if section.settings.badge_text != blank -%}
+        <p class="lp-badge"><span class="lp-badge__dot"></span>{{ section.settings.badge_text }}</p>
+      {%- endif -%}
+
+      <h1 class="lp-display">{{ section.settings.heading }}</h1>
+      <p class="lp-hero__sub">{{ section.settings.subheading }}</p>
+      <p class="lp-body">{{ section.settings.intro }}</p>
+
+      <div class="lp-hero__cta">
+        <a class="lp-btn lp-btn--wide" href="#lp-products">{{ section.settings.hero_cta }}</a>
+        <p class="lp-hero__note">{{ section.settings.hero_note }}</p>
+      </div>
+    </div>
+
+    <div class="lp-hero__media">
+      {%- if section.settings.hero_image -%}
+        {{
+          section.settings.hero_image
+          | image_url: width: 1200
+          | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '(max-width: 900px) 100vw, 50vw', widths: '600,900,1200,1600', alt: section.settings.hero_image.alt
+        }}
+      {%- else -%}
+        <img
+          src="{{ 'lp-bogo-hero.png' | asset_img_url: '1200x' }}"
+          srcset="{{ 'lp-bogo-hero.png' | asset_img_url: '600x' }} 600w, {{ 'lp-bogo-hero.png' | asset_img_url: '1200x' }} 1200w"
+          sizes="(max-width: 900px) 100vw, 50vw"
+          alt="Malbor product in use"
+          width="1152"
+          height="896"
+          fetchpriority="high"
+        >
+      {%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%} ── Trust bar ──────────────────────────────────────────── {%- endcomment -%}
+  {%- if trust_items.size > 0 -%}
+    <div class="lp-trust">
+      {%- for item in trust_items -%}
+        {%- assign label = item | strip_html | strip -%}
+        {%- if label != blank -%}<p>{{ label }}</p>{%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ── Products ───────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-section" id="lp-products">
+    <div class="lp-section__head">
+      <p class="lp-eyebrow">{{ section.settings.products_eyebrow }}</p>
+      <h2 class="lp-h2">{{ section.settings.products_heading }}</h2>
+      <p class="lp-body">{{ section.settings.products_body }}</p>
+    </div>
+
+    <div class="lp-products">
+      {%- for block in product_blocks -%}
+        {%- assign product = block.settings.product -%}
+        {%- if product == blank -%}
+          {%- continue -%}
+        {%- endif -%}
+        {%- assign variant = product.selected_or_first_available_variant -%}
+
+        <div class="lp-card" {{ block.shopify_attributes }}>
+          <div class="lp-card__media">
+            {%- if block.settings.image -%}
+              {{ block.settings.image | image_url: width: 600 | image_tag: loading: 'lazy', alt: product.title, widths: '300,600' }}
+            {%- elsif product.featured_image -%}
+              {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: product.title, widths: '300,600' }}
+            {%- endif -%}
+          </div>
+
+          <div class="lp-card__body">
+            <div>
+              <p class="lp-card__title">{{ block.settings.title | default: product.title }}</p>
+              <p class="lp-card__subtitle">{{ block.settings.subtitle }}</p>
+            </div>
+
+            <p class="lp-card__desc">
+              {{ block.settings.description | default: product.description | strip_html | truncatewords: 60 }}
+            </p>
+
+            <div class="lp-card__foot">
+              <p class="lp-card__price">{{ product.price | money_without_trailing_zeros }}</p>
+
+              {%- if variant.available -%}
+                <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
+                  <input type="hidden" name="id" value="{{ variant.id }}">
+                  <input type="hidden" name="quantity" value="1">
+                  <button
+                    type="submit"
+                    class="lp-btn"
+                    data-lp-add="{{ variant.id }}"
+                    data-lp-add-label="{{ product.title | escape }}"
+                  >
+                    <span data-lp-icon hidden></span>
+                    <span data-lp-label>Add to Cart</span>
+                  </button>
+                </form>
+              {%- else -%}
+                <p class="lp-card__soldout">Sold out</p>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </section>
+
+  {%- comment -%} ── Crossover proof ────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-split">
+    <div class="lp-figure lp-figure--tall">
+      {%- if section.settings.crossover_image -%}
+        {{ section.settings.crossover_image | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(max-width: 900px) 100vw, 50vw', widths: '600,900,1200' }}
+      {%- else -%}
+        <img
+          src="{{ 'lp-bogo-crossover.png' | asset_img_url: '1200x' }}"
+          alt="Malbor in use on a marine surface"
+          loading="lazy"
+          width="1248"
+          height="832"
+        >
+      {%- endif -%}
+    </div>
+
+    <div class="lp-split__col">
+      <p class="lp-eyebrow">{{ section.settings.crossover_eyebrow }}</p>
+      <h2 class="lp-h2">{{ section.settings.crossover_heading }}</h2>
+      <p class="lp-body" style="color:var(--lp-text-soft)">{{ section.settings.crossover_body }}</p>
+      <p class="lp-body" style="color:var(--lp-text-soft);font-size:14px;line-height:1.6">
+        {{ section.settings.crossover_body_2 }}
+      </p>
+    </div>
+  </section>
+
+  {%- comment -%} ── How it works ───────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-section" id="lp-how-it-works">
+    <div class="lp-section__head">
+      <p class="lp-eyebrow">{{ section.settings.steps_eyebrow }}</p>
+      <h2 class="lp-h2">{{ section.settings.steps_heading }}</h2>
+    </div>
+
+    <div class="lp-steps">
+      {%- for block in step_blocks -%}
+        <div class="lp-step" {{ block.shopify_attributes }}>
+          <span class="lp-step__tag">{{ block.settings.tag }}</span>
+          <p class="lp-step__title">{{ block.settings.title }}</p>
+          <p class="lp-step__body">{{ block.settings.body }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </section>
+
+  {%- comment -%} ── Fine print ─────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-split">
+    <div class="lp-split__col" style="gap:32px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <p class="lp-eyebrow">{{ section.settings.terms_eyebrow }}</p>
+        <h2 class="lp-h2">{{ section.settings.terms_heading }}</h2>
+      </div>
+
+      <ul class="lp-terms">
+        {%- for term in terms -%}
+          {%- assign line = term | strip_html | strip -%}
+          {%- if line != blank -%}<li>{{ line }}</li>{%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <div class="lp-figure lp-figure--short">
+      {%- if section.settings.terms_image -%}
+        {{ section.settings.terms_image | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(max-width: 900px) 100vw, 50vw', widths: '600,900,1200' }}
+      {%- else -%}
+        <img
+          src="{{ 'lp-bogo-lineup.png' | asset_img_url: '1200x' }}"
+          alt="Malbor product lineup"
+          loading="lazy"
+          width="1672"
+          height="941"
+        >
+      {%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%} ── Contact ────────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-section" id="lp-contact">
+    <div class="lp-contact">
+      <p class="lp-eyebrow">{{ section.settings.contact_eyebrow }}</p>
+      <h2 class="lp-h3">{{ section.settings.contact_heading }}</h2>
+      <p class="lp-body">{{ section.settings.contact_body }}</p>
+
+      <div class="lp-contact__links">
+        {%- if section.settings.contact_email != blank -%}
+          <a href="mailto:{{ section.settings.contact_email }}">{{ section.settings.contact_email }}</a>
+        {%- endif -%}
+        <span class="lp-contact__sep"></span>
+        {%- if section.settings.contact_phone != blank -%}
+          <a href="tel:{{ section.settings.contact_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' }}">
+            {{- section.settings.contact_phone -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ── Final CTA ──────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-final">
+    <p class="lp-eyebrow">{{ section.settings.final_eyebrow }}</p>
+    <h2 class="lp-display">{{ section.settings.final_heading }}</h2>
+    <p class="lp-body">{{ section.settings.final_body }}</p>
+    <div style="padding-top:16px;width:100%;display:flex;justify-content:center">
+      <a class="lp-btn lp-btn--wide" href="#lp-products">{{ section.settings.hero_cta }}</a>
+    </div>
+  </section>
+
+  {%- comment -%} ── Footer ─────────────────────────────────────────────── {%- endcomment -%}
+  <footer class="lp-footer">
+    <div class="lp-footer__cols">
+      <div class="lp-footer__brand">
+        {% render 'lp-bogo-logo' %}
+        <p>{{ section.settings.footer_tagline }}</p>
+      </div>
+
+      <div class="lp-footer__col">
+        <h2>Products</h2>
+        {%- for block in product_blocks -%}
+          {%- if block.settings.product != blank -%}
+            <a href="{{ block.settings.product.url }}">
+              {{- block.settings.title | default: block.settings.product.title -}}
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="lp-footer__col">
+        <h2>Company</h2>
+        <p>{{ section.settings.footer_company_1 }}</p>
+        <p>{{ section.settings.footer_company_2 }}</p>
+      </div>
+
+      <div class="lp-footer__col">
+        <h2>Headquarters</h2>
+        <p>{{ section.settings.footer_hq_1 }}</p>
+        <p>{{ section.settings.footer_hq_2 }}</p>
+      </div>
+    </div>
+
+    <div class="lp-footer__bar">
+      <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+      <div class="lp-footer__legal">
+        {%- comment -%}
+          The prototype rendered these as inert <button> elements. They point at
+          the store's real policy pages here, and drop out when a policy is unset.
+        {%- endcomment -%}
+        {%- if shop.privacy_policy -%}
+          <a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title }}</a>
+        {%- endif -%}
+        {%- if shop.terms_of_service -%}
+          <a href="{{ shop.terms_of_service.url }}">{{ shop.terms_of_service.title }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  </footer>
+
+  {%- comment -%} ── Cart drawer ────────────────────────────────────────── {%- endcomment -%}
+  <div class="lp-drawer__backdrop" data-lp-backdrop></div>
+
+  <aside
+    class="lp-drawer"
+    data-lp-drawer
+    role="dialog"
+    aria-modal="true"
+    aria-label="Your cart"
+  >
+    <div class="lp-drawer__head">
+      <p>Your Cart</p>
+      <button type="button" class="lp-drawer__close" data-lp-close aria-label="Close cart">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="lp-drawer__items" data-lp-items></div>
+    <div class="lp-drawer__foot" data-lp-foot hidden></div>
+  </aside>
+</div>
+
+<script src="{{ 'lp-bogo.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "BOGO landing page",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Header" },
+    { "type": "text", "id": "header_cta", "label": "Header button", "default": "CLAIM BOGO" },
+
+    { "type": "header", "content": "Hero" },
+    { "type": "text", "id": "badge_text", "label": "Badge", "default": "LIMITED TIME · STOCK CLEARANCE" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Buy 1, Get 1 Free" },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Every 3.78L gallon in the Classic Line — while stock lasts."
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro paragraph",
+      "default": "Formulated for the marine environment first, where salt and constant sun break down protection faster than anything a car sees on the road. High gloss, UV barrier and a super hydrophobic finish on both gelcoat and automotive paint."
+    },
+    { "type": "text", "id": "hero_cta", "label": "Primary button", "default": "SHOP THE BOGO NOW" },
+    {
+      "type": "text",
+      "id": "hero_note",
+      "label": "Button note",
+      "default": "Discount automatically applied at checkout"
+    },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image" },
+
+    { "type": "header", "content": "Trust bar" },
+    {
+      "type": "textarea",
+      "id": "trust_items",
+      "label": "Items (one per line)",
+      "default": "TRUSTED BY THE PROS\nBUILT FOR MARINE, PROVEN ON PAINT\nSIO2 FORMULA\nMADE IN THE USA"
+    },
+
+    { "type": "header", "content": "Products" },
+    { "type": "text", "id": "products_eyebrow", "label": "Eyebrow", "default": "CLASSIC LINE" },
+    { "type": "text", "id": "products_heading", "label": "Heading", "default": "Choose Your 3.78L Gallons" },
+    {
+      "type": "textarea",
+      "id": "products_body",
+      "label": "Body",
+      "default": "Buy 1 and Get 1 free of the same product. Add two of the same 3.78L gallon to your cart — the second one is on us."
+    },
+
+    { "type": "header", "content": "Crossover section" },
+    { "type": "text", "id": "crossover_eyebrow", "label": "Eyebrow", "default": "CROSSOVER TECHNOLOGY" },
+    {
+      "type": "text",
+      "id": "crossover_heading",
+      "label": "Heading",
+      "default": "Built where conditions are worse."
+    },
+    {
+      "type": "textarea",
+      "id": "crossover_body",
+      "label": "Body",
+      "default": "Malbor formulas were engineered for saltwater and the relentless UV exposure of tropical marine environments. These are the conditions the line was built to handle, not conditions it was later adapted to."
+    },
+    {
+      "type": "textarea",
+      "id": "crossover_body_2",
+      "label": "Second paragraph",
+      "default": "From small center consoles to superyachts, the routine is the same: wash, compound, finish, protect — then do it again before salt and sun undo it. What holds up on a hull holds up on paint."
+    },
+    { "type": "image_picker", "id": "crossover_image", "label": "Image" },
+
+    { "type": "header", "content": "How it works" },
+    { "type": "text", "id": "steps_eyebrow", "label": "Eyebrow", "default": "PROMOTION STEP-BY-STEP" },
+    { "type": "text", "id": "steps_heading", "label": "Heading", "default": "How the BOGO Works" },
+
+    { "type": "header", "content": "Fine print" },
+    { "type": "text", "id": "terms_eyebrow", "label": "Eyebrow", "default": "PROMOTION GUIDELINES" },
+    { "type": "text", "id": "terms_heading", "label": "Heading", "default": "The Fine Print" },
+    {
+      "type": "textarea",
+      "id": "terms",
+      "label": "Terms (one per line)",
+      "info": "Keep these in sync with the automatic discount configured in Discounts.",
+      "default": "Limit of 2 free gallons per individual order.\nValid September 15–29, 2026, or while stock lasts.\nDelivery available in Palm Beach, Broward and Miami-Dade counties only.\nLocal pickup available in Pompano Beach, FL and at Safe Harbor Lauderdale Marine Center, Fort Lauderdale, FL.\nShipping calculated at checkout."
+    },
+    { "type": "image_picker", "id": "terms_image", "label": "Image" },
+
+    { "type": "header", "content": "Contact" },
+    { "type": "text", "id": "contact_eyebrow", "label": "Eyebrow", "default": "EXPERT ASSISTANCE" },
+    { "type": "text", "id": "contact_heading", "label": "Heading", "default": "Questions on how to apply?" },
+    {
+      "type": "textarea",
+      "id": "contact_body",
+      "label": "Body",
+      "default": "Need guidance on prepping gelcoat or clear coat, or on cure times in South Florida humidity? Our team is happy to walk you through it before you order."
+    },
+    { "type": "text", "id": "contact_email", "label": "Email", "default": "sales@malborcoatings.com" },
+    { "type": "text", "id": "contact_phone", "label": "Phone", "default": "(925) 876-9005" },
+
+    { "type": "header", "content": "Final call to action" },
+    { "type": "text", "id": "final_eyebrow", "label": "Eyebrow", "default": "ACT BEFORE STOCK DEPLETES" },
+    {
+      "type": "text",
+      "id": "final_heading",
+      "label": "Heading",
+      "default": "Stock clearance runs until September 29, or until stock is gone."
+    },
+    {
+      "type": "textarea",
+      "id": "final_body",
+      "label": "Body",
+      "default": "Maximize your business margins and keep your fleet or collection gleaming. Do not wait — these formulas are available while stock lasts."
+    },
+
+    { "type": "header", "content": "Footer" },
+    {
+      "type": "textarea",
+      "id": "footer_tagline",
+      "label": "Tagline",
+      "default": "Ocean-tested silicon dioxide protection engineered for deep gloss and lasting surface performance"
+    },
+    { "type": "text", "id": "footer_company_1", "label": "Company line 1", "default": "About Malbor" },
+    {
+      "type": "text",
+      "id": "footer_company_2",
+      "label": "Company line 2",
+      "default": "Certified Installer Program"
+    },
+    { "type": "text", "id": "footer_hq_1", "label": "HQ line 1", "default": "Fort Lauderdale, Florida" },
+    { "type": "text", "id": "footer_hq_2", "label": "HQ line 2", "default": "MADE IN THE USA" }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "limit": 3,
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "text", "id": "title", "label": "Title override" },
+        { "type": "text", "id": "subtitle", "label": "Subtitle" },
+        { "type": "textarea", "id": "description", "label": "Description override" },
+        { "type": "image_picker", "id": "image", "label": "Image override" }
+      ]
+    },
+    {
+      "type": "step",
+      "name": "Step",
+      "limit": 3,
+      "settings": [
+        { "type": "text", "id": "tag", "label": "Tag", "default": "STEP 01" },
+        { "type": "text", "id": "title", "label": "Title" },
+        { "type": "textarea", "id": "body", "label": "Body" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BOGO landing page",
+      "blocks": [
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        {
+          "type": "step",
+          "settings": { "tag": "STEP 01", "title": "Add To Cart", "body": "Add your 3.78L gallons to the cart." }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 02",
+            "title": "Automatic Discount",
+            "body": "The second gallon is set to $0 at checkout. No code required."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 03",
+            "title": "Delivery or Pickup",
+            "body": "Choose delivery within Palm Beach, Broward and Miami-Dade counties, or pick up locally at no shipping cost."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
