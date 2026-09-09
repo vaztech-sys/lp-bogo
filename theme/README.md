@@ -58,9 +58,9 @@ with the handle `bogo` and assign it the `page.bogo` template.
 
 - The campaign copy hardcodes **September 15–29, 2026**. Keep the "Fine Print"
   setting and the automatic discount's active dates in sync.
-- The fine print promises "limit of 2 free gallons per individual order". A
-  same-product BOGO built as three separate automatic discounts cannot enforce a
-  cap that spans all three — see the notes in the pull request.
+- The offer is three separate automatic BOGO discounts, one per gallon, each
+  capped at one use per order. There is deliberately no cross-product cap: stock
+  is the control on exposure, not the fine print.
 - `max-pro-shampoo-3-78l-copy` is the live handle of the Max Pro Shampoo 3.78L
   product. Renaming the handle would break the product block in
   `templates/page.bogo.json`.
