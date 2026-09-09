@@ -39,7 +39,7 @@
   {%- comment -%} ── Header ─────────────────────────────────────────────── {%- endcomment -%}
   <header class="lp-header">
     <div class="lp-header__inner">
-      {% render 'lp-bogo-logo' %}
+      {% render 'lp-bogo-logo', url: section.settings.logo_url %}
 
       <nav class="lp-nav" aria-label="Landing page sections">
         <a href="#lp-products">PRODUCTS</a>
@@ -287,7 +287,7 @@
   <footer class="lp-footer">
     <div class="lp-footer__cols">
       <div class="lp-footer__brand">
-        {% render 'lp-bogo-logo' %}
+        {% render 'lp-bogo-logo', url: section.settings.logo_url %}
         <p>{{ section.settings.footer_tagline }}</p>
       </div>
 
@@ -365,6 +365,12 @@
   "settings": [
     { "type": "header", "content": "Header" },
     { "type": "text", "id": "header_cta", "label": "Header button", "default": "CLAIM BOGO" },
+    {
+      "type": "url",
+      "id": "logo_url",
+      "label": "Logo link",
+      "info": "Where the wordmark points, in both the header and the footer. Leave empty to make it a plain image."
+    },
 
     { "type": "header", "content": "Hero" },
     { "type": "text", "id": "badge_text", "label": "Badge", "default": "LIMITED TIME · STOCK CLEARANCE" },

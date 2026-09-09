@@ -158,6 +158,25 @@
   .lp-btn--wide { padding-inline: 48px; width: 100%; }
 }
 
+/* --- logo ---------------------------------------------------------------- */
+
+.lp-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  width: 175px;
+  flex-shrink: 0;
+}
+
+.lp-logo--link {
+  border-radius: 4px;
+  transition: opacity 0.15s;
+}
+
+.lp-logo--link:hover { opacity: 0.75; }
+.lp-logo--link:active { opacity: 0.6; }
+
 /* --- header -------------------------------------------------------------- */
 
 .lp-header {
