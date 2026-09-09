@@ -158,6 +158,27 @@
   .lp-btn--wide { padding-inline: 48px; width: 100%; }
 }
 
+/* --- skip link ----------------------------------------------------------- */
+/* Lives in layout/lp-bogo.liquid, outside .lp-bogo, so it is scoped globally. */
+
+.lp-skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  transform: translateY(-200%);
+  padding: 10px 16px;
+  border-radius: 6px;
+  background: #ea560d;
+  color: #431307;
+  font: 600 14px/1.2 Poppins, system-ui, sans-serif;
+  text-decoration: none;
+}
+
+.lp-skip:focus {
+  transform: translateY(0);
+}
+
 /* --- logo ---------------------------------------------------------------- */
 
 .lp-logo {

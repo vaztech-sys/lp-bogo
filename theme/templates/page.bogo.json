@@ -1,4 +1,5 @@
 {
+  "layout": "lp-bogo",
   "sections": {
     "lp_bogo": {
       "type": "lp-bogo",

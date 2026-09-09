@@ -39,7 +39,7 @@
   {%- comment -%} ── Header ─────────────────────────────────────────────── {%- endcomment -%}
   <header class="lp-header">
     <div class="lp-header__inner">
-      {% render 'lp-bogo-logo', url: section.settings.logo_url %}
+      {% render 'lp-bogo-logo', url: '#lp-products' %}
 
       <nav class="lp-nav" aria-label="Landing page sections">
         <a href="#lp-products">PRODUCTS</a>
@@ -368,8 +368,8 @@
     {
       "type": "url",
       "id": "logo_url",
-      "label": "Logo link",
-      "info": "Where the wordmark points, in both the header and the footer. Leave empty to make it a plain image."
+      "label": "Footer logo link",
+      "info": "Where the footer wordmark points. The header one always scrolls to the products, to keep visitors on the page. Leave empty to make the footer logo a plain image."
     },
 
     { "type": "header", "content": "Hero" },
