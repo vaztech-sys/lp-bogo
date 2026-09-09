@@ -8,7 +8,9 @@ be dropped into the store's **Balance** theme and served at `/pages/bogo`.
 | File | Purpose |
 |---|---|
 | `sections/lp-bogo.liquid` | The whole landing page, with a theme-editor schema |
-| `templates/page.bogo.json` | Page template wiring the section to the 3 gallon products |
+| `templates/index.json` | Homepage — the campaign URL needs no path |
+| `templates/page.bogo.json` | Same page at /pages/bogo, kept as a fallback |
+| `layout/lp-bogo.liquid` | Minimal layout: no theme header, footer or cart drawer |
 | `snippets/lp-bogo-logo.liquid` | Malbor wordmark, inlined SVG |
 | `snippets/lp-bogo-cart-icon.liquid` | Cart glyph |
 | `assets/lp-bogo.css` | Styles (adds the responsive behaviour the prototype lacked) |
@@ -54,10 +56,30 @@ To install by hand instead, copy each file into the matching directory of a
 **duplicate** of the Balance theme — never the live one — then create a page
 with the handle `bogo` and assign it the `page.bogo` template.
 
+## The homepage
+
+`templates/index.json` renders the same section as the page template, so the
+campaign link is the bare domain rather than a `/pages/...` path. This means
+**the store's homepage is the campaign page** for as long as this theme is
+published. The Shopify storefront is not the public storefront here — the brand
+site runs on Framer at the apex domain — so the homepage is free for the
+campaign to use.
+
+To restore the Balance homepage when the campaign ends, copy
+`docs/balance-index-backup.json` (kept outside `theme/` so it never syncs as a
+theme file) over `templates/index.json`.
+
+The page is reachable at both `/` and `/pages/bogo`, which is deliberate: the
+page template is a fallback if anything goes wrong with the homepage, and it can
+be checked without touching `/`. Only advertise one of them.
+
 ## Before going live
 
 - The campaign copy hardcodes **September 15–29, 2026**. Keep the "Fine Print"
   setting and the automatic discount's active dates in sync.
+- The campaign domain must be the store's **primary** domain. Shopify redirects
+  non-primary domains to the primary one, so a subdomain that is merely
+  connected will bounce visitors to the `.myshopify.com` address.
 - The offer is three separate automatic BOGO discounts, one per gallon, each
   capped at one use per order. There is deliberately no cross-product cap: stock
   is the control on exposure, not the fine print.

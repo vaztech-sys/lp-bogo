@@ -1,0 +1,72 @@
+{
+  "layout": "lp-bogo",
+  "sections": {
+    "lp_bogo": {
+      "type": "lp-bogo",
+      "blocks": {
+        "product_apc": {
+          "type": "product",
+          "settings": {
+            "subtitle": "3.78L GALLON · ALL-PURPOSE CLEANER",
+            "description": "Super-concentrated all-purpose cleaner for interior and exterior. Engine rooms, non-skid decks, interiors and heavy soil. Cuts through grease, salt and grime, rinsing clean without leaving residue.",
+            "product": "deep-cleaning-apc-3-78l"
+          }
+        },
+        "product_shampoo": {
+          "type": "product",
+          "settings": {
+            "subtitle": "3.78L GALLON · SiO2 HIGH-FOAM SHAMPOO",
+            "description": "SiO2 shampoo for detail washes and salt rinses on hulls, fishing tackle, trailers and vehicles. Leaves a protective layer that will not yellow. Safe on fiberglass, epoxy paints, clear coat, metals, wood and plastics.",
+            "product": "max-pro-shampoo-3-78l-copy"
+          }
+        },
+        "product_polymer": {
+          "type": "product",
+          "settings": {
+            "subtitle": "3.78L GALLON · SiO2 SEALANT",
+            "description": "SiO2 polymer sealant and the final step after compounding and micro finishing. Super hydrophobic finish, UV barrier and high gloss on gelcoat and painted surfaces. Up to 6 months of protection on vehicles maintained on a biweekly wash schedule; minimum one month on vessels, where monthly reapplication keeps a continuous barrier.",
+            "product": "max-shield-polymer-3-7l"
+          }
+        },
+        "step_1": {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 01",
+            "title": "Add To Cart",
+            "body": "Add your 3.78L gallons to the cart."
+          }
+        },
+        "step_2": {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 02",
+            "title": "Automatic Discount",
+            "body": "The second gallon is set to $0 at checkout. No code required."
+          }
+        },
+        "step_3": {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 03",
+            "title": "Delivery or Pickup",
+            "body": "Choose delivery within Palm Beach, Broward and Miami-Dade counties, or pick up locally at no shipping cost."
+          }
+        }
+      },
+      "block_order": [
+        "product_apc",
+        "product_shampoo",
+        "product_polymer",
+        "step_1",
+        "step_2",
+        "step_3"
+      ],
+      "settings": {
+        "logo_url": "https://malborcoatings.com/"
+      }
+    }
+  },
+  "order": [
+    "lp_bogo"
+  ]
+}
