@@ -132,6 +132,7 @@
   padding: 10px 20px;
   border-radius: 6px;
   white-space: nowrap;
+  text-decoration: none;
   transition: background-color 0.15s, transform 0.15s;
 }
 
@@ -194,6 +195,10 @@
   border-radius: 4px;
   transition: opacity 0.15s;
 }
+
+.lp-logo svg { height: auto; }
+.lp-logo svg:first-of-type { width: 100%; }
+.lp-logo svg:last-of-type { width: 45.15%; }
 
 .lp-logo--link:hover { opacity: 0.75; }
 .lp-logo--link:active { opacity: 0.6; }
@@ -450,6 +455,15 @@
 
 .lp-figure--tall { height: 420px; }
 .lp-figure--short { height: 360px; }
+
+@media (max-width: 760px) {
+  .lp-trust {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-block: 20px;
+  }
+}
 
 @media (max-width: 900px) {
   .lp-split { flex-direction: column; }
@@ -1101,11 +1115,45 @@
 
 /* --- narrow screens ------------------------------------------------------ */
 
+/* The header has to fit a phone: the logo scales down, the gaps tighten and
+   the button gives up its generous padding rather than overflowing. */
+@media (max-width: 900px) {
+  .lp-header__inner { gap: 12px; }
+  .lp-logo { width: 140px; }
+}
+
+@media (max-width: 380px) {
+  .lp-bogo { --lp-gutter: 16px; }
+  .lp-logo { width: 104px; }
+  .lp-header .lp-btn { padding: 9px 10px; font-size: 12px; }
+}
+
+@media (max-width: 560px) {
+  .lp-header__inner { padding-block: 14px; }
+  .lp-logo { width: 116px; gap: 5px; padding-top: 5px; }
+  .lp-header__actions { gap: 10px; }
+  .lp-header .lp-btn { padding: 9px 12px; font-size: 13px; }
+  .lp-cart-toggle { padding: 8px; }
+  .lp-cart-toggle svg { width: 20px; height: 20px; }
+}
+
 @media (max-width: 900px) {
   .lp-bogo {
     --lp-gutter: 24px;
     --lp-section-y: 64px;
   }
+
+  /* 80px of top padding under a sticky header is a lot of nothing on a phone. */
+  .lp-hero { padding-top: 32px; }
+
+  /* Comfortably tappable quantity controls in the cart drawer. */
+  .lp-qty { gap: 4px; padding: 6px; }
+  .lp-qty button { width: 32px; height: 32px; font-size: 20px; }
+  .lp-line__remove { padding: 6px 0; }
+  .lp-drawer__head,
+  .lp-drawer__items,
+  .lp-drawer__foot { padding-inline: 20px; }
+
   .lp-section { gap: 40px; }
   .lp-final { padding-block: 80px; }
   .lp-footer { padding-top: 56px; gap: 40px; }
