@@ -125,43 +125,58 @@
 
     <div class="lp-products">
       {%- for block in product_blocks -%}
-        {%- assign product = block.settings.product -%}
-        {%- if product == blank -%}
+        {%- comment -%}
+          `product` and `variant` are global Liquid objects in Shopify themes.
+          Assigning to those names inside the loop shadowed them and left
+          `variant.available` empty, so every card rendered "Sold out" while the
+          products were in stock. Prefixed names avoid the collision, and the
+          variant falls back through every way of naming one.
+        {%- endcomment -%}
+        {%- liquid
+          assign card_product = block.settings.product
+          assign card_variant = card_product.selected_or_first_available_variant
+          if card_variant == blank
+            assign card_variant = card_product.first_available_variant
+          endif
+          if card_variant == blank
+            assign card_variant = card_product.variants.first
+          endif
+        -%}
+        {%- if card_product == blank or card_variant == blank -%}
           {%- continue -%}
         {%- endif -%}
-        {%- assign variant = product.selected_or_first_available_variant -%}
 
         <div class="lp-card" {{ block.shopify_attributes }}>
           <div class="lp-card__media">
             {%- if block.settings.image -%}
-              {{ block.settings.image | image_url: width: 600 | image_tag: loading: 'lazy', alt: product.title, widths: '300,600' }}
-            {%- elsif product.featured_image -%}
-              {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: product.title, widths: '300,600' }}
+              {{ block.settings.image | image_url: width: 600 | image_tag: loading: 'lazy', alt: card_product.title, widths: '300,600' }}
+            {%- elsif card_product.featured_image -%}
+              {{ card_product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: card_product.title, widths: '300,600' }}
             {%- endif -%}
           </div>
 
           <div class="lp-card__body">
             <div>
-              <p class="lp-card__title">{{ block.settings.title | default: product.title }}</p>
+              <p class="lp-card__title">{{ block.settings.title | default: card_product.title }}</p>
               <p class="lp-card__subtitle">{{ block.settings.subtitle }}</p>
             </div>
 
             <p class="lp-card__desc">
-              {{ block.settings.description | default: product.description | strip_html | truncatewords: 60 }}
+              {{ block.settings.description | default: card_product.description | strip_html | truncatewords: 60 }}
             </p>
 
             <div class="lp-card__foot">
-              <p class="lp-card__price">{{ product.price | money_without_trailing_zeros }}</p>
+              <p class="lp-card__price">{{ card_product.price | money_without_trailing_zeros }}</p>
 
-              {%- if variant.available -%}
+              {%- if card_product.available -%}
                 <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="id" value="{{ variant.id }}">
+                  <input type="hidden" name="id" value="{{ card_variant.id }}">
                   <input type="hidden" name="quantity" value="1">
                   <button
                     type="submit"
                     class="lp-btn"
-                    data-lp-add="{{ variant.id }}"
-                    data-lp-add-label="{{ product.title | escape }}"
+                    data-lp-add="{{ card_variant.id }}"
+                    data-lp-add-label="{{ card_product.title | escape }}"
                   >
                     <span data-lp-icon hidden></span>
                     <span data-lp-label>Add to Cart</span>
