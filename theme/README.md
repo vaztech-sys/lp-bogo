@@ -75,8 +75,9 @@ be checked without touching `/`. Only advertise one of them.
 
 ## Before going live
 
-- The campaign copy hardcodes **September 15–29, 2026**. Keep the "Fine Print"
-  setting and the automatic discount's active dates in sync.
+- The campaign copy hardcodes **September 16–30, 2026**. Keep the "Fine Print"
+  setting, the final call to action, and the automatic discounts' active dates
+  in sync — all three name the window.
 - The campaign domain must be the store's **primary** domain. Shopify redirects
   non-primary domains to the primary one, so a subdomain that is merely
   connected will bounce visitors to the `.myshopify.com` address.
