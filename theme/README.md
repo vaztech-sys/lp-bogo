@@ -87,3 +87,80 @@ be checked without touching `/`. Only advertise one of them.
 - `max-pro-shampoo-3-78l-copy` is the live handle of the Max Pro Shampoo 3.78L
   product. Renaming the handle would break the product block in
   `templates/page.bogo.json`.
+
+---
+
+# Boat Show campaign (October 15 – November 1, 2026)
+
+The BOGO page above ended on September 30. The Boat Show page sits beside it in
+separate files, so uploading them changes nothing on the live storefront until
+the homepage is switched on purpose.
+
+**The offer:** buy a 3.78L gallon and get the small size of the same product
+free. There is no code; each pair has its own automatic Buy X Get Y discount.
+
+| Gallon | Free size |
+|---|---|
+| `hydro-coat-3-78l` | `hydro-coat-473ml-1` |
+| `deep-cleaning-apc-3-78l` | `deep-cleaning-apc-473ml` |
+| `max-pro-shampoo-3-78l-copy` | `max-pro-shampoo-946ml` |
+| `nano-polymer-spray-3-78l` | `nano-polymer-spray-473ml` |
+| `nano-polymer-spray-3-78l-marine` | `nano-polymer-spray-473ml-marine` |
+
+## Files
+
+| File | Purpose |
+|---|---|
+| `sections/lp-boatshow.liquid` | The page. Each product block pairs a gallon with its free size |
+| `templates/page.boat-show.json` | The page at `/pages/boat-show`, for review |
+| `layout/lp-boatshow.liquid` | Minimal layout, with the campaign title and share card |
+| `assets/lp-boatshow.css` | `lp-bogo.css` with the root class renamed to `.lp-page`, plus free-size styles |
+| `assets/lp-boatshow.js` | Cart wiring: adds both items and keeps the free size in step with its gallon |
+
+The page reuses `snippets/lp-bogo-logo.liquid`, `snippets/lp-bogo-cart-icon.liquid`
+and the `lp-bogo-*.png` photography.
+
+## Why the BOGO discount was never used, and what this page does about it
+
+Shopify's automatic Buy X Get Y discount prices the free item at $0 only when
+it is already in the cart. It never adds it. The BOGO page added one unit per
+click, so a shopper who did not add a second gallon by hand paid full price
+and got nothing. The one attributed BOGO order was a single gallon.
+
+This page:
+
+- **Adds both items in one click:** `/cart/add.js` with `items: [gallon, free size]`.
+  The no-JS fallback posts the same pair through `items[][id]` form fields.
+- **Keeps the pair in step:** after every add or quantity change on this page,
+  the script sets each free size to its gallon's quantity. Removing a gallon
+  removes its free size. On page load it does not touch the cart, so a small
+  size bought separately is left alone.
+- **Shows the free size as FREE** in the drawer, with no quantity controls of
+  its own. The savings line still comes from Shopify's `total_discount`.
+- **Handles a sold-out free size.** If the free size is out of stock, the card
+  says so, and Add to Cart adds the gallon at its regular price.
+
+## Discounts
+
+Create one automatic **Buy X Get Y** discount per row of the table above:
+
+- customer buys 1 of the gallon and gets 1 of the free size at 100% off;
+- no limit on uses per order;
+- active October 15, 2026 00:00 to November 1, 2026 23:59, Florida time.
+
+Turn off the three BOGO discounts first. Keep the fine print, the final call
+to action and the discounts' dates in sync — all three name the window.
+
+## Going live
+
+1. Upload the new files to the live theme. They add a page template and
+   change nothing that is already published.
+2. Create a page with the handle `boat-show` and assign it the `page.boat-show`
+   template. Review it at `/pages/boat-show`.
+3. Run one real cart test per product: gallon and free size in the cart, the
+   free size at $0 at checkout, and local pickup offered.
+4. On October 15, point the homepage at the new page: copy the `sections`,
+   `order` and `layout` of `templates/page.boat-show.json` into
+   `templates/index.json`.
+5. Update the announcement bar in `sections/header-group.json`. It still
+   advertises the BOGO on every other storefront page.

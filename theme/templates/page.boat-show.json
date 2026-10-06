@@ -1,0 +1,98 @@
+{
+  "layout": "lp-boatshow",
+  "sections": {
+    "lp_boatshow": {
+      "type": "lp-boatshow",
+      "blocks": {
+        "product_hydro": {
+          "type": "product",
+          "settings": {
+            "product": "hydro-coat-3-78l",
+            "gift": "hydro-coat-473ml-1",
+            "gift_size": "473ML",
+            "subtitle": "3.78L GALLON · SiO2 SPRAY SEALANT",
+            "description": "Spray sealant with hydrophobic polymers and SiO2 nanoparticles. Easy to apply after the wash for a deep, slick gloss that sheds water."
+          }
+        },
+        "product_apc": {
+          "type": "product",
+          "settings": {
+            "product": "deep-cleaning-apc-3-78l",
+            "gift": "deep-cleaning-apc-473ml",
+            "gift_size": "473ML",
+            "subtitle": "3.78L GALLON · ALL-PURPOSE CLEANER",
+            "description": "Super-concentrated all-purpose cleaner for interior and exterior. Engine rooms, non-skid decks, interiors and heavy soil. Cuts through grease, salt and grime, rinsing clean without leaving residue."
+          }
+        },
+        "product_shampoo": {
+          "type": "product",
+          "settings": {
+            "product": "max-pro-shampoo-3-78l-copy",
+            "gift": "max-pro-shampoo-946ml",
+            "gift_size": "946ML",
+            "subtitle": "3.78L GALLON · SiO2 HIGH-FOAM SHAMPOO",
+            "description": "SiO2 shampoo for detail washes and salt rinses on hulls, fishing tackle, trailers and vehicles. Leaves a protective layer that will not yellow. Safe on fiberglass, epoxy paints, clear coat, metals, wood and plastics."
+          }
+        },
+        "product_nano": {
+          "type": "product",
+          "settings": {
+            "product": "nano-polymer-spray-3-78l",
+            "gift": "nano-polymer-spray-473ml",
+            "gift_size": "473ML",
+            "subtitle": "3.78L GALLON · NANO POLYMER SPRAY",
+            "description": "Nano polymer protection in a spray. Adds a hydrophobic layer and high gloss in a quick spray-and-wipe step after washing."
+          }
+        },
+        "product_nano_marine": {
+          "type": "product",
+          "settings": {
+            "product": "nano-polymer-spray-3-78l-marine",
+            "gift": "nano-polymer-spray-473ml-marine",
+            "gift_size": "473ML",
+            "subtitle": "3.78L GALLON · NANO POLYMER SPRAY MARINE",
+            "description": "The marine version of Nano Polymer Spray, made for gelcoat and the salt and sun of life on the water. Spray, spread and buff after the wash for gloss and water beading."
+          }
+        },
+        "step_1": {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 01",
+            "title": "Add the Gallon",
+            "body": "Each gallon goes into your cart together with its free small size."
+          }
+        },
+        "step_2": {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 02",
+            "title": "Automatic Discount",
+            "body": "The small size is set to $0 at checkout. No code required."
+          }
+        },
+        "step_3": {
+          "type": "step",
+          "settings": {
+            "tag": "STEP 03",
+            "title": "Local Pickup",
+            "body": "Pick up in Pompano Beach or at Safe Harbor Lauderdale Marine Center, Fort Lauderdale."
+          }
+        }
+      },
+      "block_order": [
+        "product_hydro",
+        "product_apc",
+        "product_shampoo",
+        "product_nano",
+        "product_nano_marine",
+        "step_1",
+        "step_2",
+        "step_3"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "lp_boatshow"
+  ]
+}
