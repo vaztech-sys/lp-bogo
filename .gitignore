@@ -1,0 +1,5 @@
+# Generated layout preview (see the Boat Show section of theme/README.md).
+# Rendered from theme/ with the store's live product data, so it goes stale as
+# soon as the section, the CSS or the catalogue changes. Regenerate, don't commit.
+preview-boatshow.html
+preview-shots/
