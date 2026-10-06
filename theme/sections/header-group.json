@@ -5,16 +5,16 @@
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
-        "announcement-bogo": {
+        "announcement-boatshow": {
           "type": "announcement",
           "settings": {
-            "text": "BUY 1, GET 1 FREE — EVERY 3.78L CLASSIC LINE GALLON · WHILE STOCK LASTS",
+            "text": "FREE SMALL SIZE WITH EVERY 3.78L GALLON · OCT 15 – NOV 1 · WHILE SUPPLIES LAST",
             "link": "/"
           }
         }
       },
       "block_order": [
-        "announcement-bogo"
+        "announcement-boatshow"
       ],
       "settings": {
         "color_scheme": "accent-1",

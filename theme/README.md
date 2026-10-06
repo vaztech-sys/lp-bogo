@@ -153,14 +153,16 @@ to action and the discounts' dates in sync — all three name the window.
 
 ## Going live
 
-1. Upload the new files to the live theme. They add a page template and
-   change nothing that is already published.
-2. Create a page with the handle `boat-show` and assign it the `page.boat-show`
-   template. Review it at `/pages/boat-show`.
+1. Upload the files on this branch to the unpublished copy of the live theme.
+   The Admin API connector cannot write to the published theme.
+2. Review the page through that theme's preview link. Optionally create a page
+   with the handle `boat-show` and the `page.boat-show` template, for a
+   fallback URL.
 3. Run one real cart test per product: gallon and free size in the cart, the
    free size at $0 at checkout, and local pickup offered.
-4. On October 15, point the homepage at the new page: copy the `sections`,
-   `order` and `layout` of `templates/page.boat-show.json` into
-   `templates/index.json`.
-5. Update the announcement bar in `sections/header-group.json`. It still
-   advertises the BOGO on every other storefront page.
+4. On this branch `templates/index.json` already serves the Boat Show page,
+   and `sections/header-group.json` announces the new offer. In the store they
+   live in the unpublished theme **"Boat Show LP (Oct 15 – Nov 1)"**, a copy of
+   the live theme. Publishing that theme on October 15 switches the homepage
+   and the announcement bar in one step. To go back, republish
+   "BOGO LP — mobile fixes".

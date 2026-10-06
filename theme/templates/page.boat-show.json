@@ -89,7 +89,9 @@
         "step_2",
         "step_3"
       ],
-      "settings": {}
+      "settings": {
+        "logo_url": "https://malborcoatings.com/"
+      }
     }
   },
   "order": [
