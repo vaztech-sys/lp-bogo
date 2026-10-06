@@ -1173,12 +1173,6 @@
   .lp-logo { width: 140px; }
 }
 
-@media (max-width: 380px) {
-  .lp-page { --lp-gutter: 16px; }
-  .lp-logo { width: 104px; }
-  .lp-header .lp-btn { padding: 9px 10px; font-size: 12px; }
-}
-
 @media (max-width: 560px) {
   .lp-header__inner { padding-block: 14px; }
   .lp-logo { width: 116px; gap: 5px; padding-top: 5px; }
@@ -1210,4 +1204,15 @@
   .lp-footer { padding-top: 56px; gap: 40px; }
   .lp-footer__cols { gap: 32px; }
   .lp-footer__col { align-items: flex-start !important; }
+}
+
+/* Smallest phones last: the 560px and 900px blocks below set --lp-gutter,
+   .lp-logo and .lp-header .lp-btn too, and at the same specificity the later
+   rule wins. Ordered the other way round this block was dead and a 320px
+   screen got the 116px logo and a 24px gutter, which left the header about
+   four pixels from overflowing. */
+@media (max-width: 380px) {
+  .lp-page { --lp-gutter: 16px; }
+  .lp-logo { width: 104px; }
+  .lp-header .lp-btn { padding: 9px 10px; font-size: 12px; }
 }

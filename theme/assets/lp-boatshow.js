@@ -224,10 +224,16 @@
 
   /* --- free-size sync ---------------------------------------------------- */
 
-  // Set every free size to its gallon's quantity. Resolves with the cart as it
-  // stands afterwards. If Shopify refuses (free size out of stock) the cart is
-  // left as it is: the gallon still sells, and the card already says the free
-  // size is being restocked.
+  // Free sizes this page is responsible for: a pair is adopted the first time
+  // its gallon is in the cart. Until then the free size is the shopper's own —
+  // a small size bought on its own must not be swept out of the cart because
+  // some other gallon was added.
+  var adopted = {};
+
+  // Set every adopted free size to its gallon's quantity. Resolves with the
+  // cart as it stands afterwards. If Shopify refuses (free size out of stock)
+  // the cart is left as it is: the gallon still sells, and the card already
+  // says the free size is being restocked.
   function syncGifts(cart) {
     var qtyOf = {};
     cart.items.forEach(function (item) {
@@ -240,10 +246,17 @@
       var giftId = giftFor[gallonId];
       var want = qtyOf[gallonId] || 0;
       var have = qtyOf[giftId] || 0;
+
+      if (want > 0) adopted[giftId] = true;
+      // want === 0 on a pair this page never adopted means the gallon is not
+      // here and never was: leave the free size alone.
+      if (want === 0 && !adopted[giftId]) return;
+
       if (want !== have) {
         updates[giftId] = want;
         changed = true;
       }
+      if (want === 0) delete adopted[giftId];
     });
 
     if (!changed) return Promise.resolve(cart);
@@ -297,8 +310,12 @@
     var variantId = button.dataset.lpAdd;
     if (!variantId || button.disabled) return;
 
+    // The gallon alone. /cart/add.js is atomic, so sending the pair meant a
+    // free size that sold out mid-campaign failed the whole request and the
+    // shopper could not add the gallon either. syncGifts raises the free size
+    // to the gallon's quantity straight after, which is also idempotent: it
+    // never stacks a second free unit on a gallon added twice.
     var items = [{ id: Number(variantId), quantity: 1 }];
-    if (button.dataset.lpGift) items.push({ id: Number(button.dataset.lpGift), quantity: 1 });
 
     setButtonState(button, "adding");
 
@@ -386,7 +403,17 @@
 
   // No sync on load: a small size the shopper added somewhere else, at full
   // price, is theirs to keep. Pairs are enforced only on this page's actions.
-  getCart().then(render).catch(function () {
-    /* An empty or unreachable cart just leaves the server-rendered state. */
-  });
+  // A pair already sitting in the cart is adopted, though, so dropping that
+  // gallon later still drops its free size.
+  getCart()
+    .then(function (cart) {
+      cart.items.forEach(function (item) {
+        var giftId = giftFor[item.variant_id];
+        if (giftId && item.quantity > 0) adopted[giftId] = true;
+      });
+      render(cart);
+    })
+    .catch(function () {
+      /* An empty or unreachable cart just leaves the server-rendered state. */
+    });
 })();

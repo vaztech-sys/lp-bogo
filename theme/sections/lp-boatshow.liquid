@@ -164,7 +164,12 @@
 
         <div class="lp-card" {{ block.shopify_attributes }}>
           <div class="lp-card__media">
-            {%- if gift_product != blank -%}
+            {%- comment -%}
+              Gated on gift_ready, not on the product: a sold-out free size
+              would otherwise promise "+ FREE 473ML" in the corner of the same
+              card whose body says the free size is sold out.
+            {%- endcomment -%}
+            {%- if gift_ready -%}
               <span class="lp-card__flag">+ FREE {{ block.settings.gift_size | default: 'SMALL SIZE' }}</span>
             {%- endif -%}
             {%- if block.settings.image -%}
@@ -427,7 +432,13 @@
         assign pair_variant = pair_product.selected_or_first_available_variant | default: pair_product.variants.first
         assign pair_gift_variant = pair_gift.selected_or_first_available_variant | default: pair_gift.variants.first
       -%}
-      {%- if pair_variant != blank and pair_gift_variant != blank -%}
+      {%- comment -%}
+        Availability is part of the pair. syncGifts sends every free size in one
+        /cart/update.js call, so a single out-of-stock free size would fail the
+        request and leave every other pair unsynced. An unavailable free size is
+        simply not a pair, which is also what the card renders.
+      {%- endcomment -%}
+      {%- if pair_variant != blank and pair_gift_variant != blank and pair_gift_variant.available -%}
         {%- unless first_pair %},{% endunless -%}
         { "gallon": {{ pair_variant.id }}, "gift": {{ pair_gift_variant.id }} }
         {%- assign first_pair = false -%}

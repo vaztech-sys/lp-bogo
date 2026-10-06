@@ -125,7 +125,12 @@ and the `lp-bogo-*.png` photography.
 Shopify's automatic Buy X Get Y discount prices the free item at $0 only when
 it is already in the cart. It never adds it. The BOGO page added one unit per
 click, so a shopper who did not add a second gallon by hand paid full price
-and got nothing. The one attributed BOGO order was a single gallon.
+and got nothing.
+
+In fifteen days the three BOGO discounts were used in exactly one order
+(#1124, Sept 29): a real customer who added two gallons of Max Shield and two
+of Max Pro Shampoo by hand and got $244 off. The offer worked; almost nobody
+found the one extra step it needed.
 
 This page:
 
@@ -138,7 +143,29 @@ This page:
 - **Shows the free size as FREE** in the drawer, with no quantity controls of
   its own. The savings line still comes from Shopify's `total_discount`.
 - **Handles a sold-out free size.** If the free size is out of stock, the card
-  says so, and Add to Cart adds the gallon at its regular price.
+  says so, the "+ FREE" flag is withheld, the pair is left out of the sync map,
+  and Add to Cart adds the gallon at its regular price.
+- **Adds the gallon alone, then raises the free size to match.** `/cart/add.js`
+  is atomic, so posting the pair meant a free size that sold out mid-campaign
+  failed the whole request and the shopper could not buy the gallon either.
+  The no-JS form still posts both, having no second step available to it.
+
+## Free-size stock
+
+The free sizes are the constraint, and two of them deny overselling, so the
+offer stops working for that product the moment stock runs out. Checked
+October 6:
+
+| Free size | On hand | When out of stock |
+|---|---|---|
+| `hydro-coat-473ml-1` | 1 | **deny** — offer dies after one order |
+| `deep-cleaning-apc-473ml` | 5 | **deny** — offer dies after five |
+| `max-pro-shampoo-946ml` | 53 | continue |
+| `nano-polymer-spray-473ml` | 5 | continue |
+| `nano-polymer-spray-473ml-marine` | 6 | continue |
+
+`nano-polymer-spray-3-78l-marine`, the gallon, is at 0 on hand and set to
+continue selling, so that card sells an item with none in stock.
 
 ## Discounts
 
