@@ -469,7 +469,15 @@
 @media (max-width: 900px) {
   .lp-split { flex-direction: column; }
   .lp-figure--tall,
-  .lp-figure--short { height: 260px; width: 100%; }
+  .lp-figure--short {
+    /* flex: 1 0 0 sets flex-basis: 0, and once .lp-split is a column that basis
+       governs the height and beats the one set here. The column has no free
+       space to grow into, so both photos collapsed to nothing on every screen
+       under 900px — they were simply absent on phones. */
+    flex: none;
+    height: 260px;
+    width: 100%;
+  }
 }
 
 /* --- product grid -------------------------------------------------------- */
