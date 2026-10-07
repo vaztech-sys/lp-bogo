@@ -190,6 +190,11 @@ to action and the discounts' dates in sync — all three name the window.
 4. On this branch `templates/index.json` already serves the Boat Show page,
    and `sections/header-group.json` announces the new offer. In the store they
    live in the unpublished theme **"Boat Show LP (Oct 15 – Nov 1)"**, a copy of
-   the live theme. Publishing that theme on October 15 switches the homepage
-   and the announcement bar in one step. To go back, republish
-   "BOGO LP — mobile fixes".
+   the live theme. Publishing that theme on October 15 switches both in one
+   step. To go back, republish "BOGO LP — mobile fixes".
+
+   The announcement bar does **not** appear on the landing page itself:
+   `layout/lp-boatshow.liquid` is a minimal layout and never calls
+   `{% sections 'header-group' %}`. It reaches the rest of the store — product
+   pages, cart, policies — which is where a visitor would not otherwise hear
+   about the offer. The landing page carries the dates in its own badge.
