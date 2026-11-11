@@ -277,7 +277,7 @@ function sectionFor(templateFile) {
   const defaults = {};
   for (const s of schema.settings) if (s.id && "default" in s) defaults[s.id] = s.default;
   const blockDefaults = {};
-  for (const b of schema.blocks) {
+  for (const b of schema.blocks || []) {
     blockDefaults[b.type] = {};
     for (const s of b.settings) if ("default" in s) blockDefaults[b.type][s.id] = s.default;
   }
@@ -287,7 +287,7 @@ function sectionFor(templateFile) {
     section: {
       id: key,
       settings: resolveSettings({ ...defaults, ...sec.settings, ...settingsOverride }),
-      blocks: sec.block_order.map((id) => ({
+      blocks: (sec.block_order || []).map((id) => ({
         id,
         type: sec.blocks[id].type,
         shopify_attributes: "",
@@ -329,9 +329,9 @@ app.use(express.json());
 app.use("/assets", express.static(path.join(THEME, "assets")));
 app.use("/fonts", express.static(path.join(__dirname, "node_modules/@fontsource")));
 
-app.get(["/", "/pages/black-friday"], async (req, res, next) => {
+app.get(["/", "/pages/black-friday", "/pages/black-friday-teaser"], async (req, res, next) => {
   try {
-    const file = req.path === "/" ? "index.json" : "page.black-friday.json";
+    const file = req.path === "/" ? "index.json" : "page" + req.path.replace("/pages/", ".") + ".json";
     res.type("html").send(await renderPage(file, req.originalUrl));
   } catch (e) {
     next(e);

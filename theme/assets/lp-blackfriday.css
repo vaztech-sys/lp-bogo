@@ -582,6 +582,19 @@
   margin: 0;
 }
 
+/* --- teaser ("Black Friday is coming") --------------------------------- */
+
+.lp-teaser__coming {
+  margin: 0;
+  font-family: var(--lp-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(40px, 12vw, 96px);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--lp-accent);
+}
+
 /* --- ribbon -------------------------------------------------------------- */
 
 .lp-ribbon {

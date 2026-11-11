@@ -1,0 +1,20 @@
+{
+  "layout": "lp-blackfriday",
+  "sections": {
+    "lp_blackfriday_teaser": {
+      "type": "lp-blackfriday-teaser",
+      "settings": {
+        "start_at": "2026-11-27 00:00",
+        "tz_offset": "-0500",
+        "seal": "NOV\n27",
+        "hero_product_1": "black-ceramic-10h-60ml-marine",
+        "hero_product_2": "9h-special-edition-60ml-marine",
+        "hero_product_3": "glass-coating-60ml",
+        "logo_url": "https://malborcoatings.com/"
+      }
+    }
+  },
+  "order": [
+    "lp_blackfriday_teaser"
+  ]
+}

@@ -1,0 +1,215 @@
+{%- comment -%}
+  "Black Friday is coming" teaser: what the homepage shows between the end of
+  the previous campaign and the day the full Black Friday page goes up.
+
+  No prices, no percentages, no cart. Same look as the full page (it loads
+  lp-blackfriday.css) and as the "IS COMING." story art: BLACK / FRIDAY, the
+  bottles on the pedestal, the star seal, a countdown sticker and the ribbon.
+
+  The layout recognises this section by `data-lp-teaser` and uses a share
+  card without the offer.
+{%- endcomment -%}
+
+{{ 'lp-blackfriday.css' | asset_url | stylesheet_tag }}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;1,800;1,900&family=Poppins:wght@400;500;600&display=swap"
+>
+
+{%- liquid
+  assign tz = section.settings.tz_offset | default: '-0500'
+  assign start_ts = 0
+  if section.settings.start_at != blank
+    assign start_ts = section.settings.start_at | append: ' ' | append: tz | date: '%s' | plus: 0
+  endif
+  if start_ts < 1000000000
+    assign start_ts = 0
+  endif
+-%}
+
+<div class="lp-page lp-teaser" data-lp-teaser data-lp-state="soon">
+  <header class="lp-header">
+    <div class="lp-header__inner">
+      {% render 'lp-blackfriday-logo', url: section.settings.logo_url %}
+      {%- if section.settings.contact_phone != blank -%}
+        <a class="lp-btn lp-btn--sm" href="tel:+1{{ section.settings.contact_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' }}">
+          {{- section.settings.contact_phone -}}
+        </a>
+      {%- endif -%}
+    </div>
+  </header>
+
+  <section class="lp-hero" aria-labelledby="lp-teaser-title">
+    <div class="lp-hero__glow" aria-hidden="true"></div>
+
+    <h1 class="lp-hero__title" id="lp-teaser-title">
+      <span class="lp-hero__black">BLACK</span>
+      <span class="lp-hero__friday">FRIDAY</span>
+      <span class="lp-visually-hidden">{{ section.settings.coming }}</span>
+    </h1>
+
+    <div class="lp-hero__stage">
+      <div class="lp-stage" aria-hidden="true">
+        <div class="lp-stage__light"></div>
+        <div class="lp-stage__items">
+          {%- for i in (1..3) -%}
+            {%- assign key = 'hero_product_' | append: i -%}
+            {%- assign hero_product = section.settings[key] -%}
+            {%- if hero_product != blank and hero_product.featured_image -%}
+              <div class="lp-stage__item lp-stage__item--{{ i }}">
+                {%- if i == 2 -%}
+                  {% render 'lp-blackfriday-bottle', image: hero_product.featured_image, alt: '', width: 900, widths: '450,700,900', sizes: '(max-width: 760px) 240px, 440px', loading: 'eager', priority: true %}
+                {%- else -%}
+                  {% render 'lp-blackfriday-bottle', image: hero_product.featured_image, alt: '', width: 700, widths: '350,520,700', sizes: '(max-width: 760px) 180px, 330px', loading: 'eager', priority: true %}
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        <div class="lp-stage__pedestal"></div>
+      </div>
+
+      {%- if section.settings.seal != blank -%}
+        <p class="lp-seal"><span>{{ section.settings.seal | newline_to_br }}</span></p>
+      {%- endif -%}
+    </div>
+
+    <div class="lp-hero__copy">
+      <p class="lp-teaser__coming" aria-hidden="true">{{ section.settings.coming }}</p>
+      <p class="lp-hero__offer">{{ section.settings.subheading }}</p>
+
+      <div class="lp-countdown" data-lp-teaser-countdown data-start="{{ start_ts | times: 1000 }}" {% if start_ts == 0 %}hidden{% endif %}>
+        <p class="lp-countdown__label">{{ section.settings.countdown_label }}</p>
+        <p class="lp-countdown__clock" aria-hidden="true">
+          <span><b data-lp-cd="d">--</b><small>days</small></span>
+          <span><b data-lp-cd="h">--</b><small>hrs</small></span>
+          <span><b data-lp-cd="m">--</b><small>min</small></span>
+          <span><b data-lp-cd="s">--</b><small>sec</small></span>
+        </p>
+        <p class="lp-countdown__when">{{ section.settings.date_text }}</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="lp-ribbon" aria-hidden="true">
+    <p>
+      {%- for i in (1..8) -%}
+        <span>BLACK FRIDAY</span><span class="lp-ribbon__star">✦</span>
+        <span>{{ section.settings.seal | newline_to_br | replace: '<br />', ' ' | strip_newlines }}</span><span class="lp-ribbon__star">✦</span>
+      {%- endfor -%}
+    </p>
+  </div>
+
+  <section class="lp-section lp-section--terms" id="lp-pickup">
+    <div class="lp-section__head">
+      <p class="lp-eyebrow">{{ section.settings.pickup_eyebrow }}</p>
+      <h2 class="lp-h2">{{ section.settings.pickup_heading }}</h2>
+    </div>
+
+    <div class="lp-pickup">
+      {%- for i in (1..2) -%}
+        {%- liquid
+          assign p_name = 'pickup_' | append: i | append: '_name'
+          assign p_addr = 'pickup_' | append: i | append: '_address'
+        -%}
+        {%- if section.settings[p_name] != blank -%}
+          <div class="lp-pickup__place">
+            <p class="lp-pickup__name">{{ section.settings[p_name] }}</p>
+            <p class="lp-pickup__addr">{{ section.settings[p_addr] | newline_to_br }}</p>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="lp-contact">
+      <p>{{ section.settings.contact_heading }}</p>
+      <p class="lp-contact__links">
+        {%- if section.settings.contact_phone != blank -%}
+          <a href="tel:+1{{ section.settings.contact_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' }}">
+            {{- section.settings.contact_phone -}}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.contact_email != blank -%}
+          <a href="mailto:{{ section.settings.contact_email }}">{{ section.settings.contact_email }}</a>
+        {%- endif -%}
+      </p>
+    </div>
+  </section>
+
+  <footer class="lp-footer">
+    {% render 'lp-blackfriday-logo', url: section.settings.logo_url %}
+    <p>{{ section.settings.footer_tagline }}</p>
+    <div class="lp-footer__bar">
+      <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</p>
+      <div class="lp-footer__legal">
+        {%- if shop.privacy_policy -%}<a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title }}</a>{%- endif -%}
+        {%- if shop.terms_of_service -%}<a href="{{ shop.terms_of_service.url }}">{{ shop.terms_of_service.title }}</a>{%- endif -%}
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var el = document.querySelector("[data-lp-teaser-countdown]");
+    if (!el) return;
+    var start = Number(el.dataset.start);
+    var parts = {};
+    el.querySelectorAll("[data-lp-cd]").forEach(function (b) { parts[b.dataset.lpCd] = b; });
+    function pad(n) { return n < 10 ? "0" + n : String(n); }
+    function tick() {
+      var left = Math.floor((start - Date.now()) / 1000);
+      if (!start || left <= 0) { el.hidden = true; return; }
+      var d = Math.floor(left / 86400), h = Math.floor((left % 86400) / 3600);
+      var m = Math.floor((left % 3600) / 60), s = left % 60;
+      parts.d.textContent = pad(d); parts.h.textContent = pad(h);
+      parts.m.textContent = pad(m); parts.s.textContent = pad(s);
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Black Friday teaser",
+  "tag": "section",
+  "settings": [
+    { "type": "paragraph", "content": "No prices or percentages on this page: the offer is announced with the full Black Friday page." },
+    { "type": "text", "id": "start_at", "label": "Black Friday starts", "default": "2026-11-27 00:00", "info": "YYYY-MM-DD HH:MM, Florida time. The countdown hides itself once this passes." },
+    {
+      "type": "select",
+      "id": "tz_offset",
+      "label": "Florida time offset",
+      "options": [
+        { "value": "-0500", "label": "EST (−05:00), November to March" },
+        { "value": "-0400", "label": "EDT (−04:00), March to November" }
+      ],
+      "default": "-0500"
+    },
+    { "type": "textarea", "id": "seal", "label": "Seal and ribbon date", "default": "NOV\n27" },
+    { "type": "text", "id": "coming", "label": "Headline", "default": "IS COMING." },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "The Professional Line goes on sale." },
+    { "type": "text", "id": "countdown_label", "label": "Countdown label", "default": "Black Friday · Nov 27" },
+    { "type": "text", "id": "date_text", "label": "Text under the countdown", "default": "Ceramic coatings for the boat, the car and the interior." },
+    { "type": "product", "id": "hero_product_1", "label": "Pedestal bottle, left" },
+    { "type": "product", "id": "hero_product_2", "label": "Pedestal bottle, centre" },
+    { "type": "product", "id": "hero_product_3", "label": "Pedestal bottle, right" },
+    { "type": "text", "id": "pickup_eyebrow", "label": "Pickup eyebrow", "default": "LOCAL PICKUP" },
+    { "type": "text", "id": "pickup_heading", "label": "Pickup heading", "default": "Pick up in South Florida" },
+    { "type": "text", "id": "pickup_1_name", "label": "Location 1", "default": "Pompano Beach" },
+    { "type": "textarea", "id": "pickup_1_address", "label": "Location 1 address", "default": "2250 W Copans Rd\nPompano Beach, FL 33069" },
+    { "type": "text", "id": "pickup_2_name", "label": "Location 2", "default": "Safe Harbor Lauderdale Marine Center" },
+    { "type": "textarea", "id": "pickup_2_address", "label": "Location 2 address", "default": "2005 SW 20th St, Ste 105\nFort Lauderdale, FL 33315" },
+    { "type": "text", "id": "contact_heading", "label": "Contact heading", "default": "Questions? Call or write to us." },
+    { "type": "text", "id": "contact_phone", "label": "Phone", "default": "(925) 876-9005" },
+    { "type": "text", "id": "contact_email", "label": "Email", "default": "sales@malborcoatings.com" },
+    { "type": "url", "id": "logo_url", "label": "Logo link" },
+    { "type": "text", "id": "footer_tagline", "label": "Footer tagline", "default": "Ceramic coatings for boats, cars and interiors. Made in the USA." }
+  ],
+  "presets": [{ "name": "Black Friday teaser" }]
+}
+{% endschema %}

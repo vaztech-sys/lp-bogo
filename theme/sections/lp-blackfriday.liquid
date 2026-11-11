@@ -251,7 +251,7 @@
       {%- for i in (1..8) -%}
         <span>BLACK FRIDAY</span><span class="lp-ribbon__star">✦</span>
         {%- if period_short != blank -%}
-          <span data-lp-hide-when="over ended">{{ period_short | replace: '<br>', ' ' | strip_newlines }}</span><span class="lp-ribbon__star" data-lp-hide-when="over ended">✦</span>
+          <span data-lp-hide-when="over ended">{{ period_short | newline_to_br | replace: '<br />', ' ' | strip_newlines }}</span><span class="lp-ribbon__star" data-lp-hide-when="over ended">✦</span>
         {%- endif -%}
       {%- endfor -%}
     </p>
