@@ -358,8 +358,8 @@
 /* Bottles on a pedestal with an orange light behind. */
 .lp-hero__stage {
   position: relative;
-  width: min(100%, 520px);
-  margin-top: -14%;
+  width: min(100%, 640px);
+  margin-top: -12%;
 }
 
 .lp-stage {
@@ -387,31 +387,23 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  gap: 9%;
   width: 100%;
-  min-height: 160px;
-  padding-top: 18%;
+  padding-top: 10%;
 }
 
 .lp-stage__item {
-  width: 30%;
-  margin-inline: -3%;
-  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.55));
+  width: 15%;
+  filter: drop-shadow(0 14px 14px rgba(0, 0, 0, 0.6));
 }
 
-.lp-stage__item img {
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: contain;
-  object-position: center bottom;
-}
-
-.lp-stage__item--2 { width: 38%; z-index: 2; }
+.lp-stage__item--2 { width: 20%; z-index: 2; }
 
 .lp-stage__pedestal {
   position: relative;
   width: 86%;
-  height: 54px;
-  margin-top: calc(-8% - 26px);
+  height: clamp(44px, 11vw, 64px);
+  margin-top: clamp(-34px, -6vw, -24px);
   border-radius: 50%;
   background:
     radial-gradient(ellipse at 50% 30%, #3a332e 0%, #1a1614 60%, #0e0c0b 100%);
@@ -428,6 +420,41 @@
   border-radius: 0 0 50% 50% / 0 0 40% 40%;
   background: linear-gradient(180deg, #1b1715, #0b0908);
   z-index: -1;
+}
+
+/* --- bottle ----------------------------------------------------------- */
+/* A box the size of the bottle. The store's photos are 600x800 with the
+   bottle at 34.5%–65.5% across and 22.2%–80.2% down; the image is scaled and
+   shifted so that region fills the box, and the bottle's base is the box's
+   bottom edge. See snippets/lp-blackfriday-bottle.liquid. */
+
+.lp-bottle {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 310 / 773;
+}
+
+.lp-page .lp-bottle img {
+  position: absolute;
+  top: 0;
+  left: -111.3%;
+  width: 322.6%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  margin-top: -95.5%;
+  pointer-events: none;
+}
+
+.lp-bottle--whole { aspect-ratio: 3 / 4; }
+
+.lp-page .lp-bottle--whole img {
+  position: static;
+  width: 100%;
+  margin: 0;
+  object-fit: contain;
+  object-position: center bottom;
 }
 
 /* Star seal with the date. */
@@ -745,34 +772,36 @@
 
 .lp-card__media {
   position: relative;
-  display: flex;
-  justify-content: center;
-  padding: 16px 16px 0;
+  padding: 44px 16px 14px;
   background:
-    radial-gradient(ellipse 60% 55% at 50% 58%, rgba(232, 89, 12, 0.45), transparent 70%),
+    radial-gradient(ellipse 55% 60% at 50% 55%, rgba(232, 89, 12, 0.5), transparent 72%),
     var(--lp-surface-2);
 }
 
-/* A small pedestal under each bottle. */
-.lp-card__media::after {
-  content: "";
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  bottom: 6px;
-  height: 14px;
-  border-radius: 50%;
-  background: #2a2420;
-  box-shadow: 0 0 0 1px rgba(232, 89, 12, 0.7);
+.lp-card__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.lp-card__media img {
+.lp-card__stage .lp-bottle {
   position: relative;
   z-index: 1;
-  width: 78%;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-  margin-bottom: 10px;
+  width: 30%;
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.55));
+}
+
+.lp-card__stage .lp-bottle--whole { width: 80%; }
+
+/* The bottle stands on the middle of this ellipse. */
+.lp-card__pedestal {
+  display: block;
+  width: 66%;
+  height: 18px;
+  margin-top: -9px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 35%, #3a332e, #1c1816 70%);
+  box-shadow: 0 0 0 1px rgba(232, 89, 12, 0.75), 0 10px 14px rgba(0, 0, 0, 0.5);
 }
 
 .lp-card__flag {
@@ -849,7 +878,10 @@
 
 .lp-card__form { margin-top: 8px; }
 
-.lp-card .lp-btn { padding: 12px 10px; font-size: 12px; }
+.lp-card .lp-btn { padding: 12px 8px; font-size: 11px; letter-spacing: 0.2px; }
+
+/* A sold-out Marine bottle carries both flags: stack them. */
+.lp-card__flag + .lp-card__flag--out { top: 38px; }
 
 .lp-card__soldout {
   margin: 8px 0 0;
@@ -865,7 +897,11 @@
   color: var(--lp-muted-2);
 }
 
-.lp-card--out .lp-card__media img { opacity: 0.45; filter: grayscale(0.6); }
+.lp-card__flag--out {
+  background: var(--lp-bg);
+  color: var(--lp-muted);
+  border: 1px solid var(--lp-line);
+}
 
 @media (min-width: 760px) {
   .lp-card__body { padding: 18px; gap: 10px; }

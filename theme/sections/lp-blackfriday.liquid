@@ -163,22 +163,16 @@
       <div class="lp-stage" aria-hidden="true">
         <div class="lp-stage__light"></div>
         <div class="lp-stage__items">
-          {%- assign hero_products = '' -%}
           {%- for i in (1..3) -%}
             {%- assign key = 'hero_product_' | append: i -%}
             {%- assign hero_product = section.settings[key] -%}
             {%- if hero_product != blank and hero_product.featured_image -%}
               <div class="lp-stage__item lp-stage__item--{{ i }}">
-                {{
-                  hero_product.featured_image
-                  | image_url: width: 520
-                  | image_tag:
-                    loading: 'eager',
-                    fetchpriority: 'high',
-                    widths: '260,390,520',
-                    sizes: '(max-width: 760px) 34vw, 220px',
-                    alt: ''
-                }}
+                {%- if i == 2 -%}
+                  {% render 'lp-blackfriday-bottle', image: hero_product.featured_image, alt: '', width: 900, widths: '450,700,900', sizes: '(max-width: 760px) 240px, 440px', loading: 'eager', priority: true %}
+                {%- else -%}
+                  {% render 'lp-blackfriday-bottle', image: hero_product.featured_image, alt: '', width: 700, widths: '350,520,700', sizes: '(max-width: 760px) 180px, 330px', loading: 'eager', priority: true %}
+                {%- endif -%}
               </div>
             {%- endif -%}
           {%- endfor -%}

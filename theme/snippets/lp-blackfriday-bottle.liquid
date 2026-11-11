@@ -1,0 +1,38 @@
+{%- comment -%}
+  A bottle photo trimmed to the bottle itself, so it can stand on a pedestal.
+
+  The store's product photos are all 600x800 with the bottle in the same
+  place: about 35%–65% across and 23%–80% down, the rest transparent. Shown
+  as they are, the bottle is small and its base floats 20% of the photo above
+  whatever sits under it. `.lp-bottle` is a box the size of the bottle; the
+  image inside is scaled and shifted so the bottle fills it exactly
+  (numbers in lp-blackfriday.css).
+
+  An image override (a cut-out uploaded in the theme editor) may be framed
+  differently, so it is shown whole instead: pass `trimmed: false`.
+
+  Parameters: image, alt, sizes, widths, width, loading, priority, trimmed.
+{%- endcomment -%}
+{%- liquid
+  assign img_width = width | default: 600
+  assign img_widths = widths | default: '300,450,600'
+  assign img_loading = loading | default: 'lazy'
+  assign img_priority = 'auto'
+  if priority
+    assign img_priority = 'high'
+  endif
+-%}
+{%- if image != blank -%}
+  <span class="lp-bottle{% if trimmed == false %} lp-bottle--whole{% endif %}">
+    {{
+      image
+      | image_url: width: img_width
+      | image_tag:
+        loading: img_loading,
+        fetchpriority: img_priority,
+        widths: img_widths,
+        sizes: sizes,
+        alt: alt
+    }}
+  </span>
+{%- endif -%}
