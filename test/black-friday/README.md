@@ -15,3 +15,11 @@ npm test             # Playwright; writes evidence/
 
 `evidence/*.json` are `/cart.js` responses from the last run. This is not a
 substitute for one real cart test on the store once the discounts are active.
+
+## Review file
+
+`node build-review.js out.html` (with `npm run serve` running) writes one
+self-contained HTML of the page for people without access to the preview
+theme: CSS and JS inlined, a bar to switch between Coming soon / Live /
+Ended, and a simulated cart with the same discount rules. Photos and fonts
+load from Shopify's CDN and Google Fonts.
