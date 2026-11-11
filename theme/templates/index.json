@@ -11,7 +11,8 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": false,
-            "subtitle": "For gelcoat. Water runs right off and the hull is easier to clean."
+            "subtitle": "For gelcoat. Water runs right off and the hull is easier to clean.",
+            "image": "shopify://shop_images/lp-bf-render-9h-special-edition-60ml-marine.png"
           }
         },
         "bottle_black_ceramic_10h_60ml_marine": {
@@ -21,7 +22,8 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": false,
-            "subtitle": "For gelcoat. Deep gloss, water runs off, easier to clean."
+            "subtitle": "For gelcoat. Deep gloss, water runs off, easier to clean.",
+            "image": "shopify://shop_images/lp-bf-render-black-ceramic-10h-60ml-marine.png"
           }
         },
         "bottle_pure_ceramic_60ml_marine": {
@@ -51,7 +53,8 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": true,
-            "subtitle": "For windshields and glass. Water runs off for a clearer view."
+            "subtitle": "For windshields and glass. Water runs off for a clearer view.",
+            "image": "shopify://shop_images/lp-bf-render-glass-coating-60ml.png"
           }
         },
         "bottle_9h_special_edition_60ml": {
@@ -216,7 +219,10 @@
         "hero_product_3": "glass-coating-60ml",
         "gift_standard": "sio2-top-sealant-473ml",
         "gift_marine": "sio2-top-sealant-473ml-marine",
-        "logo_url": "https://malborcoatings.com/"
+        "logo_url": "https://malborcoatings.com/",
+        "hero_image_1": "shopify://shop_images/lp-bf-render-black-ceramic-10h-60ml-marine.png",
+        "hero_image_2": "shopify://shop_images/lp-bf-render-9h-special-edition-60ml-marine.png",
+        "hero_image_3": "shopify://shop_images/lp-bf-render-glass-coating-60ml.png"
       }
     }
   },

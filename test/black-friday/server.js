@@ -261,7 +261,11 @@ engine.registerFilter("image_tag", (url, ...args) => {
 function resolveSettings(settings) {
   const out = {};
   for (const [k, v] of Object.entries(settings || {})) {
-    out[k] = typeof v === "string" && products[v] ? products[v] : v;
+    if (typeof v === "string" && v.startsWith("shopify://shop_images/")) {
+      out[k] = { src: "/media/" + v.slice("shopify://shop_images/".length), alt: "" };
+    } else {
+      out[k] = typeof v === "string" && products[v] ? products[v] : v;
+    }
   }
   return out;
 }
@@ -327,6 +331,7 @@ async function renderPage(templateFile, url) {
 const app = express();
 app.use(express.json());
 app.use("/assets", express.static(path.join(THEME, "assets")));
+app.use("/media", express.static(path.join(THEME, "../media/black-friday")));
 app.use("/fonts", express.static(path.join(__dirname, "node_modules/@fontsource")));
 
 app.get(["/", "/pages/black-friday", "/pages/black-friday-teaser"], async (req, res, next) => {

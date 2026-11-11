@@ -10,7 +10,10 @@
         "hero_product_1": "black-ceramic-10h-60ml-marine",
         "hero_product_2": "9h-special-edition-60ml-marine",
         "hero_product_3": "glass-coating-60ml",
-        "logo_url": "https://malborcoatings.com/"
+        "logo_url": "https://malborcoatings.com/",
+        "hero_image_1": "shopify://shop_images/lp-bf-render-black-ceramic-10h-60ml-marine.png",
+        "hero_image_2": "shopify://shop_images/lp-bf-render-9h-special-edition-60ml-marine.png",
+        "hero_image_3": "shopify://shop_images/lp-bf-render-glass-coating-60ml.png"
       }
     }
   },

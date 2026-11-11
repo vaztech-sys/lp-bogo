@@ -90,7 +90,7 @@
     {%- unless in_stock -%}<span class="lp-card__flag lp-card__flag--out">SOLD OUT</span>{%- endunless -%}
     <div class="lp-card__stage">
       {%- if block.settings.image -%}
-        {% render 'lp-blackfriday-bottle', image: block.settings.image, alt: title, width: 600, widths: '300,450,600', sizes: '(max-width: 760px) 40vw, 240px', trimmed: false %}
+        {% render 'lp-blackfriday-bottle', image: block.settings.image, alt: title, width: 600, widths: '300,450,600', sizes: '(max-width: 760px) 160px, 260px' %}
       {%- elsif card_product.featured_image -%}
         {% render 'lp-blackfriday-bottle', image: card_product.featured_image, alt: title, width: 600, widths: '300,450,600', sizes: '(max-width: 760px) 160px, 260px' %}
       {%- endif -%}

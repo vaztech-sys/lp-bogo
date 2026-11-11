@@ -8,8 +8,9 @@
   image inside is scaled and shifted so the bottle fills it exactly
   (numbers in lp-blackfriday.css).
 
-  An image override (a cut-out uploaded in the theme editor) may be framed
-  differently, so it is shown whole instead: pass `trimmed: false`.
+  Image overrides set in the theme editor (the campaign renders) are prepared
+  on the same 3:4 canvas, so they are trimmed the same way. Pass
+  `trimmed: false` to show an image whole instead.
 
   A photo framed differently can pass its own bottle box as fractions of the
   photo: frame_x, frame_y (top-left corner), frame_w, frame_h. The SiO2 Top
