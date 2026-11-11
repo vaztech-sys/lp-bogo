@@ -1,0 +1,79 @@
+{
+  "item_count": 3,
+  "items": [
+    {
+      "key": "50503904559424:0",
+      "id": 50503904559424,
+      "variant_id": 50503904559424,
+      "product_title": "9H Special Edition 60ml",
+      "handle": "9h-special-edition-60ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 9500,
+      "original_price": 9500,
+      "original_line_price": 9500,
+      "line_price": 9500,
+      "final_price": 7125,
+      "final_line_price": 7125,
+      "total_discount": 2375,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 25%",
+          "amount": 2375
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SPEDITION_1.webp"
+    },
+    {
+      "key": "50503946633536:1",
+      "id": 50503946633536,
+      "variant_id": 50503946633536,
+      "product_title": "9H Special Edition 60ml Marine",
+      "handle": "9h-special-edition-60ml-marine",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 9500,
+      "original_price": 9500,
+      "original_line_price": 9500,
+      "line_price": 9500,
+      "final_price": 7125,
+      "final_line_price": 7125,
+      "total_discount": 2375,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 25%",
+          "amount": 2375
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SP_EDITION_MARINE_1.webp"
+    },
+    {
+      "key": "50673082204480:2",
+      "id": 50673082204480,
+      "variant_id": 50673082204480,
+      "product_title": "SiO2 Top Sealant 473ml Marine",
+      "handle": "sio2-top-sealant-473ml-marine",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 3900,
+      "original_price": 3900,
+      "original_line_price": 3900,
+      "line_price": 3900,
+      "final_price": 0,
+      "final_line_price": 0,
+      "total_discount": 3900,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday free SiO2 Top Sealant",
+          "amount": 3900
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/S1O2SealantMarine473_86391424-b2f6-4312-aee7-fcdc58dc5654.webp"
+    }
+  ],
+  "original_total_price": 22900,
+  "items_subtotal_price": 14250,
+  "total_price": 14250,
+  "total_discount": 8650,
+  "currency": "USD"
+}

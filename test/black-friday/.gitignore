@@ -1,0 +1,4 @@
+node_modules/
+form-posts.log
+server.log
+evidence/*.png

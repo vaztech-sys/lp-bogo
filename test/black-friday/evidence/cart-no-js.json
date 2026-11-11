@@ -1,0 +1,56 @@
+{
+  "item_count": 2,
+  "items": [
+    {
+      "key": "50503947780416:0",
+      "id": 50503947780416,
+      "variant_id": 50503947780416,
+      "product_title": "Black Ceramic 10H 60ml Marine",
+      "handle": "black-ceramic-10h-60ml-marine",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 13900,
+      "original_price": 13900,
+      "original_line_price": 13900,
+      "line_price": 13900,
+      "final_price": 10425,
+      "final_line_price": 10425,
+      "total_discount": 3475,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 25%",
+          "amount": 3475
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/BLACK_MARINE.webp"
+    },
+    {
+      "key": "50673082204480:1",
+      "id": 50673082204480,
+      "variant_id": 50673082204480,
+      "product_title": "SiO2 Top Sealant 473ml Marine",
+      "handle": "sio2-top-sealant-473ml-marine",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 3900,
+      "original_price": 3900,
+      "original_line_price": 3900,
+      "line_price": 3900,
+      "final_price": 0,
+      "final_line_price": 0,
+      "total_discount": 3900,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday free SiO2 Top Sealant",
+          "amount": 3900
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/S1O2SealantMarine473_86391424-b2f6-4312-aee7-fcdc58dc5654.webp"
+    }
+  ],
+  "original_total_price": 17800,
+  "items_subtotal_price": 10425,
+  "total_price": 10425,
+  "total_discount": 7375,
+  "currency": "USD"
+}

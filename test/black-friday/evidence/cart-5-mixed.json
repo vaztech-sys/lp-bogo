@@ -1,0 +1,148 @@
+{
+  "item_count": 6,
+  "items": [
+    {
+      "key": "50577721524544:0",
+      "id": 50577721524544,
+      "variant_id": 50577721524544,
+      "product_title": "Plastic Coating 60ml",
+      "handle": "plastic-coating-60ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 8500,
+      "original_price": 8500,
+      "original_line_price": 8500,
+      "line_price": 8500,
+      "final_price": 5525,
+      "final_line_price": 5525,
+      "total_discount": 2975,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 35% (5+)",
+          "amount": 2975
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/Adobe_Express_-_file_1.png"
+    },
+    {
+      "key": "50577714217280:1",
+      "id": 50577714217280,
+      "variant_id": 50577714217280,
+      "product_title": "Leather Coating 60ml",
+      "handle": "leather-coating-60ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 8500,
+      "original_price": 8500,
+      "original_line_price": 8500,
+      "line_price": 8500,
+      "final_price": 5525,
+      "final_line_price": 5525,
+      "total_discount": 2975,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 35% (5+)",
+          "amount": 2975
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/LEATHER.webp"
+    },
+    {
+      "key": "50577710022976:2",
+      "id": 50577710022976,
+      "variant_id": 50577710022976,
+      "product_title": "Glass Coating 60ml",
+      "handle": "glass-coating-60ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 5900,
+      "original_price": 5900,
+      "original_line_price": 5900,
+      "line_price": 5900,
+      "final_price": 3835,
+      "final_line_price": 3835,
+      "total_discount": 2065,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 35% (5+)",
+          "amount": 2065
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/GLASS_1.webp"
+    },
+    {
+      "key": "50503909343552:3",
+      "id": 50503909343552,
+      "variant_id": 50503909343552,
+      "product_title": "Black Ceramic 10H 60ml",
+      "handle": "black-ceramic-10h-60ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 13900,
+      "original_price": 13900,
+      "original_line_price": 13900,
+      "line_price": 13900,
+      "final_price": 9035,
+      "final_line_price": 9035,
+      "total_discount": 4865,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 35% (5+)",
+          "amount": 4865
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/BLACK_4c0211fd-b026-4f43-bf49-cb06467eeea4.webp"
+    },
+    {
+      "key": "50503904559424:4",
+      "id": 50503904559424,
+      "variant_id": 50503904559424,
+      "product_title": "9H Special Edition 60ml",
+      "handle": "9h-special-edition-60ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 9500,
+      "original_price": 9500,
+      "original_line_price": 9500,
+      "line_price": 9500,
+      "final_price": 6175,
+      "final_line_price": 6175,
+      "total_discount": 3325,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 35% (5+)",
+          "amount": 3325
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SPEDITION_1.webp"
+    },
+    {
+      "key": "50489274302784:5",
+      "id": 50489274302784,
+      "variant_id": 50489274302784,
+      "product_title": "SIO2 Top Sealant 473ml",
+      "handle": "sio2-top-sealant-473ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 3900,
+      "original_price": 3900,
+      "original_line_price": 3900,
+      "line_price": 3900,
+      "final_price": 0,
+      "final_line_price": 0,
+      "total_discount": 3900,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday free SiO2 Top Sealant",
+          "amount": 3900
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SiO2Sealant473_0d97c731-cdfd-4b45-8293-640711208571.webp"
+    }
+  ],
+  "original_total_price": 50200,
+  "items_subtotal_price": 30095,
+  "total_price": 30095,
+  "total_discount": 20105,
+  "currency": "USD"
+}

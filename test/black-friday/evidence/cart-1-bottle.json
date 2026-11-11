@@ -1,0 +1,56 @@
+{
+  "item_count": 2,
+  "items": [
+    {
+      "key": "50503904559424:0",
+      "id": 50503904559424,
+      "variant_id": 50503904559424,
+      "product_title": "9H Special Edition 60ml",
+      "handle": "9h-special-edition-60ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 9500,
+      "original_price": 9500,
+      "original_line_price": 9500,
+      "line_price": 9500,
+      "final_price": 7125,
+      "final_line_price": 7125,
+      "total_discount": 2375,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday 25%",
+          "amount": 2375
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SPEDITION_1.webp"
+    },
+    {
+      "key": "50489274302784:1",
+      "id": 50489274302784,
+      "variant_id": 50489274302784,
+      "product_title": "SIO2 Top Sealant 473ml",
+      "handle": "sio2-top-sealant-473ml",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 3900,
+      "original_price": 3900,
+      "original_line_price": 3900,
+      "line_price": 3900,
+      "final_price": 0,
+      "final_line_price": 0,
+      "total_discount": 3900,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday free SiO2 Top Sealant",
+          "amount": 3900
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SiO2Sealant473_0d97c731-cdfd-4b45-8293-640711208571.webp"
+    }
+  ],
+  "original_total_price": 13400,
+  "items_subtotal_price": 7125,
+  "total_price": 7125,
+  "total_discount": 6275,
+  "currency": "USD"
+}

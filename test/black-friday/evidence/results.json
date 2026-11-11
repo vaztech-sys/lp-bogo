@@ -1,0 +1,159 @@
+[
+  {
+    "name": "soon: state attribute",
+    "ok": true
+  },
+  {
+    "name": "soon: Add to cart disabled",
+    "ok": true
+  },
+  {
+    "name": "soon: button text",
+    "ok": true,
+    "detail": "\n          \n          Starts Black Friday\n        "
+  },
+  {
+    "name": "soon: countdown visible",
+    "ok": true
+  },
+  {
+    "name": "soon: countdown label",
+    "ok": true
+  },
+  {
+    "name": "soon: full price only",
+    "ok": true
+  },
+  {
+    "name": "soon: offer line",
+    "ok": true
+  },
+  {
+    "name": "375px: no horizontal scroll",
+    "ok": true,
+    "detail": "overflow 0px"
+  },
+  {
+    "name": "live: state attribute",
+    "ok": true
+  },
+  {
+    "name": "live: countdown label",
+    "ok": true
+  },
+  {
+    "name": "live: discounted price preview",
+    "ok": true
+  },
+  {
+    "name": "1 bottle: 25% on the line",
+    "ok": true,
+    "detail": "[{\"title\":\"9H Special Edition 60ml\",\"qty\":1,\"original\":95,\"final\":71.25,\"discounts\":[\"Black Friday 25%\"]},{\"title\":\"SIO2 Top Sealant 473ml\",\"qty\":1,\"original\":39,\"final\":0,\"discounts\":[\"Black Friday free SiO2 Top Sealant\"]}]"
+  },
+  {
+    "name": "1 bottle: SiO2 standard at $0",
+    "ok": true
+  },
+  {
+    "name": "1 bottle: one request added both",
+    "ok": true
+  },
+  {
+    "name": "drawer: progress text",
+    "ok": true
+  },
+  {
+    "name": "drawer: gift shows FREE",
+    "ok": true
+  },
+  {
+    "name": "drawer: savings = Shopify total_discount",
+    "ok": true,
+    "detail": "−$62.75"
+  },
+  {
+    "name": "5 mixed: 35% on every bottle",
+    "ok": true,
+    "detail": "[{\"title\":\"Plastic Coating 60ml\",\"qty\":1,\"original\":85,\"final\":55.25,\"discounts\":[\"Black Friday 35% (5+)\"]},{\"title\":\"Leather Coating 60ml\",\"qty\":1,\"original\":85,\"final\":55.25,\"discounts\":[\"Black Friday 35% (5+)\"]},{\"title\":\"Glass Coating 60ml\",\"qty\":1,\"original\":59,\"final\":38.35,\"discounts\":[\"Black Friday 35% (5+)\"]},{\"title\":\"Black Ceramic 10H 60ml\",\"qty\":1,\"original\":139,\"final\":90.35,\"discounts\":[\"Black Friday 35% (5+)\"]},{\"title\":\"9H Special Edition 60ml\",\"qty\":1,\"original\":95,\"final\":61.75,\"discounts\":[\"Black Friday 35% (5+)\"]},{\"title\":\"SIO2 Top Sealant 473ml\",\"qty\":1,\"original\":39,\"final\":0,\"discounts\":[\"Black Friday free SiO2 Top Sealant\"]}]"
+  },
+  {
+    "name": "5 mixed: exactly one SiO2, at $0",
+    "ok": true
+  },
+  {
+    "name": "drawer: 35% unlocked",
+    "ok": true
+  },
+  {
+    "name": "drawer: gift has no quantity controls",
+    "ok": true
+  },
+  {
+    "name": "switch: now the Marine sealant, still one, still $0",
+    "ok": true
+  },
+  {
+    "name": "remove all bottles: cart empty, SiO2 gone",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "marine first: SiO2 Marine, only one",
+    "ok": true,
+    "detail": "[{\"title\":\"9H Special Edition 60ml\",\"qty\":1,\"original\":95,\"final\":71.25,\"discounts\":[\"Black Friday 25%\"]},{\"title\":\"9H Special Edition 60ml Marine\",\"qty\":1,\"original\":95,\"final\":71.25,\"discounts\":[\"Black Friday 25%\"]},{\"title\":\"SiO2 Top Sealant 473ml Marine\",\"qty\":1,\"original\":39,\"final\":0,\"discounts\":[\"Black Friday free SiO2 Top Sealant\"]}]"
+  },
+  {
+    "name": "standard sealant sold out: Marine one goes in",
+    "ok": true
+  },
+  {
+    "name": "both sold out: notice shown",
+    "ok": true
+  },
+  {
+    "name": "both sold out: offer line drops the free item",
+    "ok": true
+  },
+  {
+    "name": "both sold out: bottle added alone",
+    "ok": true
+  },
+  {
+    "name": "sealant sold out mid-session: bottle still added, Marine sealant instead",
+    "ok": true,
+    "detail": "[{\"title\":\"9H Special Edition 60ml\",\"qty\":1,\"original\":95,\"final\":71.25,\"discounts\":[\"Black Friday 25%\"]},{\"title\":\"SiO2 Top Sealant 473ml Marine\",\"qty\":1,\"original\":39,\"final\":0,\"discounts\":[\"Black Friday free SiO2 Top Sealant\"]}]"
+  },
+  {
+    "name": "no JS: form adds bottle + matching sealant",
+    "ok": true,
+    "detail": "[{\"title\":\"Black Ceramic 10H 60ml Marine\",\"qty\":1,\"original\":139,\"final\":104.25,\"discounts\":[\"Black Friday 25%\"]},{\"title\":\"SiO2 Top Sealant 473ml Marine\",\"qty\":1,\"original\":39,\"final\":0,\"discounts\":[\"Black Friday free SiO2 Top Sealant\"]}]"
+  },
+  {
+    "name": "no JS: second bottle does not add a second sealant",
+    "ok": true
+  },
+  {
+    "name": "ended: message",
+    "ok": true
+  },
+  {
+    "name": "ended: buttons disabled 'Offer ended'",
+    "ok": true
+  },
+  {
+    "name": "ended: no countdown",
+    "ok": true
+  },
+  {
+    "name": "over (coming soon, no dates): no countdown, no seal",
+    "ok": true
+  },
+  {
+    "name": "over: buttons disabled",
+    "ok": true
+  },
+  {
+    "name": "filter: Boat shows only the Boat group",
+    "ok": true
+  }
+]
