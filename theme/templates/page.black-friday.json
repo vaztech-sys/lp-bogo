@@ -11,7 +11,7 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": false,
-            "subtitle": "Ceramic coating for gelcoat and marine paint. High gloss, water beads off."
+            "subtitle": "For gelcoat. Water runs right off and the hull is easier to clean."
           }
         },
         "bottle_black_ceramic_10h_60ml_marine": {
@@ -21,7 +21,7 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": false,
-            "subtitle": "Ceramic coating for gelcoat, for a deep, glossy finish."
+            "subtitle": "For gelcoat. Deep gloss, water runs off, easier to clean."
           }
         },
         "bottle_pure_ceramic_60ml_marine": {
@@ -31,7 +31,7 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": false,
-            "subtitle": "Ceramic coating for gelcoat. Clean gloss, easy application."
+            "subtitle": "For gelcoat. Water runs off and salt rinses away more easily."
           }
         },
         "bottle_fine_touch_ceramic_60ml_marine": {
@@ -41,7 +41,7 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": false,
-            "subtitle": "A light ceramic coat for gelcoat, quick to apply."
+            "subtitle": "For gelcoat. Quick to apply; water runs off."
           }
         },
         "bottle_glass_coating_60ml": {
@@ -51,7 +51,7 @@
             "in_boat": true,
             "in_car": false,
             "in_interior": true,
-            "subtitle": "Ceramic coating for windshields and glass. Water sheets off."
+            "subtitle": "For windshields and glass. Water runs off for a clearer view."
           }
         },
         "bottle_9h_special_edition_60ml": {
@@ -61,7 +61,7 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "Ceramic coating for paint. High gloss, water beads off."
+            "subtitle": "For paint. Water runs right off and the car is easier to clean."
           }
         },
         "bottle_black_ceramic_10h_60ml": {
@@ -71,7 +71,7 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "Ceramic coating for paint, for a deep, glossy finish."
+            "subtitle": "For paint. Deep gloss, water runs off, easier to clean."
           }
         },
         "bottle_pure_ceramic_coating_60ml": {
@@ -81,7 +81,7 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "Ceramic coating for paint. Clean gloss, easy application."
+            "subtitle": "For paint. Water runs off and dirt washes away more easily."
           }
         },
         "bottle_fine_touch_ceramic_60ml": {
@@ -91,7 +91,7 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "A light ceramic coat for paint, quick to apply."
+            "subtitle": "For paint. Quick to apply; water runs off."
           }
         },
         "bottle_wheel_caliper_ceramic_60ml": {
@@ -101,7 +101,7 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "Ceramic coating for wheels and calipers. Brake dust wipes off more easily."
+            "subtitle": "For wheels and calipers. Brake dust is easier to clean off."
           }
         },
         "bottle_ppf_vinyl_ceramic_60ml": {
@@ -111,7 +111,7 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "Ceramic coating for paint protection film and vinyl wraps."
+            "subtitle": "For paint protection film and vinyl wraps. Water runs off, easier to clean."
           }
         },
         "bottle_ppf_vinyl_matte_ceramic_60ml": {
@@ -121,7 +121,7 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "For matte PPF and vinyl. Protects without adding gloss."
+            "subtitle": "For matte film and wraps. Keeps the matte look and is easier to clean."
           }
         },
         "bottle_leather_coating_60ml": {
@@ -131,7 +131,7 @@
             "in_boat": false,
             "in_car": false,
             "in_interior": true,
-            "subtitle": "Ceramic coating for leather seats and trim."
+            "subtitle": "For leather seats and trim. Spills wipe off more easily."
           }
         },
         "bottle_leather_ceramic_matte_60ml": {
@@ -141,7 +141,7 @@
             "in_boat": false,
             "in_car": false,
             "in_interior": true,
-            "subtitle": "For leather, with a natural matte finish."
+            "subtitle": "For leather, with a natural matte look. Spills wipe off more easily."
           }
         },
         "bottle_plastic_coating_60ml": {
@@ -151,7 +151,7 @@
             "in_boat": false,
             "in_car": false,
             "in_interior": true,
-            "subtitle": "Ceramic coating for interior and exterior plastics and trim."
+            "subtitle": "For interior and exterior plastics and trim. Easier to clean."
           }
         },
         "step_1": {

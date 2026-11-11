@@ -115,6 +115,9 @@ async function addFromCard(page, variantId) {
   check("soon: countdown label", (await page.locator(".lp-countdown__label span:visible").textContent()).trim() === "Starts in");
   check("soon: full price only", await page.locator(".lp-price--deal").first().isHidden());
   check("soon: offer line", (await page.locator(".lp-hero__offer").innerText()).includes("25% off · 35% when you buy 5 · free SiO2 Top Sealant"));
+  const pageText = await page.evaluate(() => document.body.innerText + " " + document.title + " " + [...document.querySelectorAll("meta[content]")].map((m) => m.content).join(" "));
+  const banned = pageText.match(/permanent|\bshield|\bprotector|months?\b|years?\b|lifetime|delivery|car lifetime coating|3 years boat coating|\bkit [67]\b/gi);
+  check("copy: no legal-banned words on the page", !banned, banned ? banned.join(", ") : "");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   check("375px: no horizontal scroll", overflow <= 0, "overflow " + overflow + "px");
   await page.screenshot({ path: path.join(OUT, "soon-375-fold.png") });

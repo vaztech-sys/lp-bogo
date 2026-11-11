@@ -29,6 +29,11 @@
     "ok": true
   },
   {
+    "name": "copy: no legal-banned words on the page",
+    "ok": true,
+    "detail": ""
+  },
+  {
     "name": "375px: no horizontal scroll",
     "ok": true,
     "detail": "overflow 0px"

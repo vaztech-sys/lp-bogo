@@ -148,5 +148,11 @@ grep -rniE "BOGO|Buy 1|gallon|Boat Show|FLIBS|October|delivery|permanent|months|
   --exclude=README.md theme/
 ```
 
-Bottle descriptions come from the block's "Short description", never from the
-product description, which may contain duration claims.
+Card text comes only from each block's "Short description" in the template,
+never from the product description. Several store descriptions carry claims
+legal does not allow ("permanent shield" on Pure Ceramic, "permanent
+protector" on PPF & Vinyl, "up to 12 months" on Glass Coating); they are to
+be corrected separately. Card copy is the product name plus generic benefits
+(water runs off, easier to clean), with no duration and no "permanent".
+`test/black-friday/test.js` also checks the rendered page text for the
+banned words.
