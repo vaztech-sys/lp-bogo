@@ -69,15 +69,21 @@ const SHIM = `
     var live = state === "live";
     var bottles = lines.filter(function (l) { return isBottle(l.id); }).reduce(function (s, l) { return s + l.q; }, 0);
     var pct = !live || !bottles ? 0 : bottles >= 5 ? 35 : 25;
-    var giftLeft = live && bottles > 0;
-    var giftIdx = -1;
-    for (var i = lines.length - 1; i >= 0; i--) if (giftLeft && isGift(lines[i].id)) { giftIdx = i; break; }
+    // One free sealant per bottle, oldest sealant lines first.
+    var giftLeft = live ? bottles : 0;
+    var freeUnits = {};
+    for (var i = lines.length - 1; i >= 0; i--) {
+      if (giftLeft > 0 && isGift(lines[i].id)) {
+        freeUnits[i] = Math.min(giftLeft, lines[i].q);
+        giftLeft -= freeUnits[i];
+      }
+    }
     var total = 0, orig = 0, count = 0;
     var items = lines.map(function (l, i) {
       var p = byId[l.id];
       var o = p.price * l.q, d = 0;
       if (isBottle(l.id) && pct) d = Math.round(o * pct / 100);
-      if (i === giftIdx) d = p.price;
+      if (freeUnits[i]) d = p.price * freeUnits[i];
       total += o - d; orig += o; count += l.q;
       return { variant_id: l.id, product_title: p.title, quantity: l.q, original_line_price: o,
         final_line_price: o - d, line_price: o, image: p.image, line_level_discount_allocations: [] };
