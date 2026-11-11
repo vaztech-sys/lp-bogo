@@ -117,10 +117,17 @@ real cart test.
 | Theme | Role | Use |
 |---|---|---|
 | **Black Friday LP (Nov 2026)** (`189978640704`) | Unpublished | Duplicate of the Boat Show theme with this branch's files |
+| **Black Friday teaser (until Nov 16)** (`190010491200`) | Unpublished | Copy of the theme above whose `/` and `/pages/black-friday` show the "Black Friday is coming · Nov 27" teaser (no prices). Publish it to take the ended offer off the homepage now |
 | Boat Show LP (Oct 15 – Nov 1) | **Published** | Still shows the gallon offer that ended Nov 1 |
 | BOGO LP — mobile fixes | Unpublished | September page |
 
-Review: `https://bogo.malborcoatings.com/pages/black-friday?preview_theme_id=189978640704`
+Teaser review: `https://bogo.malborcoatings.com/?preview_theme_id=190010491200`
+
+Planned switch: publish the teaser theme as soon as it is approved, then
+publish **Black Friday LP (Nov 2026)** on Nov 16; it shows "coming soon"
+until Nov 27 and the offer from Nov 27 to Nov 30.
+
+Full page review: `https://bogo.malborcoatings.com/pages/black-friday?preview_theme_id=189978640704`
 (the page `black-friday` uses the `page.black-friday` template). The `/` of
 that theme already serves the Black Friday page, so publishing the theme
 switches the homepage and the announcement bar together.
