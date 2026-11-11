@@ -2,8 +2,9 @@
   One Professional Line bottle on the Black Friday page.
 
   Parameters: block, state ('soon' | 'live' | 'over' | 'ended'), the two
-  sealant variants with their *_ok stock flags, cart_has_gift, and the two
-  disabled-button labels.
+  sealant variants with their *_ok stock flags, gift_std_room / gift_mar_room
+  (whether the cart can take one more of each without passing the stock on
+  hand), and the two disabled-button labels.
 
   The card can appear in more than one group (Glass Coating is in Boat and in
   Interior), so it carries no id of its own.
@@ -55,6 +56,27 @@
     endif
   endif
 
+  # The no-JS form brings one sealant along with the bottle: the preferred
+  # version if one more fits under its stock, the other one if not.
+  assign form_gift_id = blank
+  if gift_id != blank
+    assign gift_id_room = gift_std_room
+    if gift_id == gift_mar_variant.id
+      assign gift_id_room = gift_mar_room
+    endif
+    if gift_id_room
+      assign form_gift_id = gift_id
+    elsif gift_alt_id != blank
+      assign gift_alt_room = gift_std_room
+      if gift_alt_id == gift_mar_variant.id
+        assign gift_alt_room = gift_mar_room
+      endif
+      if gift_alt_room
+        assign form_gift_id = gift_alt_id
+      endif
+    endif
+  endif
+
   assign price = card_variant.price
   assign price_base = price | times: 75 | divided_by: 100
   assign price_bulk = price | times: 65 | divided_by: 100
@@ -98,15 +120,15 @@
     {%- if in_stock -%}
       {%- comment -%}
         Without JavaScript the form posts the bottle and its free sealant in one
-        request (items[]), unless the cart already holds a sealant. With
+        request (items[]): one sealant per bottle. With
         JavaScript, lp-blackfriday.js intercepts the submit and does the same
         against /cart/add.js, with a fallback when a sealant has just sold out.
       {%- endcomment -%}
       <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="lp-card__form">
         <input type="hidden" name="items[][id]" value="{{ card_variant.id }}">
         <input type="hidden" name="items[][quantity]" value="1">
-        {%- if state == 'live' and gift_id != blank and cart_has_gift == false -%}
-          <input type="hidden" name="items[][id]" value="{{ gift_id }}">
+        {%- if state == 'live' and form_gift_id != blank -%}
+          <input type="hidden" name="items[][id]" value="{{ form_gift_id }}">
           <input type="hidden" name="items[][quantity]" value="1">
         {%- endif -%}
         <button

@@ -1,7 +1,7 @@
 {%- comment -%}
   Malbor Black Friday 2026 landing page: the Professional Line 60ml bottles at
   25% off, 35% off every bottle from five up, and one free SiO2 Top Sealant
-  473ml per order.
+  473ml with every bottle.
 
   What carries over from the earlier campaign pages, and why:
 
@@ -102,14 +102,37 @@
     assign gift_any_ok = true
   endif
 
-  # Does the cart already hold a free sealant? Then the no-JS form adds the
-  # bottle alone, so the order never ends up with two.
-  assign cart_has_gift = false
+  # One sealant per bottle, and never more than are on hand: the cap is the
+  # tracked stock (unlimited when Shopify does not track it). The no-JS form
+  # uses what is already in the cart to stay under the cap.
+  assign gift_std_cap = 9999
+  if gift_std_variant.inventory_management == 'shopify'
+    assign gift_std_cap = gift_std_variant.inventory_quantity | at_least: 0
+  endif
+  assign gift_mar_cap = 9999
+  if gift_mar_variant.inventory_management == 'shopify'
+    assign gift_mar_cap = gift_mar_variant.inventory_quantity | at_least: 0
+  endif
+
+  assign gift_std_in_cart = 0
+  assign gift_mar_in_cart = 0
   for item in cart.items
-    if item.variant_id == gift_std_variant.id or item.variant_id == gift_mar_variant.id
-      assign cart_has_gift = true
+    if item.variant_id == gift_std_variant.id
+      assign gift_std_in_cart = gift_std_in_cart | plus: item.quantity
+    elsif item.variant_id == gift_mar_variant.id
+      assign gift_mar_in_cart = gift_mar_in_cart | plus: item.quantity
     endif
   endfor
+  if gift_std_in_cart >= gift_std_cap
+    assign gift_std_room = false
+  else
+    assign gift_std_room = true
+  endif
+  if gift_mar_in_cart >= gift_mar_cap
+    assign gift_mar_room = false
+  else
+    assign gift_mar_room = true
+  endif
 
   assign product_blocks = section.blocks | where: 'type', 'product'
   assign step_blocks = section.blocks | where: 'type', 'step'
@@ -302,7 +325,8 @@
                   gift_std_ok: gift_std_ok,
                   gift_mar_variant: gift_mar_variant,
                   gift_mar_ok: gift_mar_ok,
-                  cart_has_gift: cart_has_gift,
+                  gift_std_room: gift_std_room,
+                  gift_mar_room: gift_mar_room,
                   soon_label: section.settings.soon_button,
                   ended_label: section.settings.ended_button
                 %}
@@ -501,8 +525,10 @@
     "gift": {
       "standard": {% if gift_std_variant != blank %}{{ gift_std_variant.id }}{% else %}null{% endif %},
       "standardOk": {{ gift_std_ok }},
+      "standardMax": {% if gift_std_cap == 9999 %}null{% else %}{{ gift_std_cap }}{% endif %},
       "marine": {% if gift_mar_variant != blank %}{{ gift_mar_variant.id }}{% else %}null{% endif %},
-      "marineOk": {{ gift_mar_ok }}
+      "marineOk": {{ gift_mar_ok }},
+      "marineMax": {% if gift_mar_cap == 9999 %}null{% else %}{{ gift_mar_cap }}{% endif %}
     },
     "text": {
       "soonButton": {{ section.settings.soon_button | json }},
@@ -524,7 +550,7 @@
       "content": "Dates use the format YYYY-MM-DD HH:MM, in Florida time. Before the start the page shows full prices, a countdown and disabled buttons. Keep these dates the same as the automatic discounts."
     },
     { "type": "text", "id": "start_at", "label": "Offer starts", "default": "2026-11-27 00:00", "info": "Leave empty to keep the page in \"coming soon\" with no countdown." },
-    { "type": "text", "id": "end_at", "label": "Offer ends", "default": "2026-11-27 23:59", "info": "Leave empty for no end date." },
+    { "type": "text", "id": "end_at", "label": "Offer ends", "default": "2026-11-30 23:59", "info": "Leave empty for no end date." },
     {
       "type": "select",
       "id": "tz_offset",
@@ -545,8 +571,8 @@
       ],
       "default": "ended"
     },
-    { "type": "textarea", "id": "period_short", "label": "Seal and ribbon date", "default": "NOV\n27", "info": "One or two short lines, e.g. NOV 27 or NOV 27–30." },
-    { "type": "text", "id": "period_long", "label": "Period text", "default": "Black Friday, Friday November 27, 2026", "info": "Shown under the countdown and in the fine print, where [period] appears." },
+    { "type": "textarea", "id": "period_short", "label": "Seal and ribbon date", "default": "NOV\n27–30", "info": "One or two short lines, e.g. NOV 27 or NOV 27–30." },
+    { "type": "text", "id": "period_long", "label": "Period text", "default": "Black Friday to Cyber Monday, Nov 27–30", "info": "Shown under the countdown and in the fine print, where [period] appears." },
 
     { "type": "header", "content": "Header" },
     { "type": "text", "id": "header_cta", "label": "Header button", "default": "SHOP" },
@@ -554,7 +580,7 @@
 
     { "type": "header", "content": "Hero" },
     { "type": "text", "id": "offer_line", "label": "Offer line", "default": "25% off · 35% when you buy 5" },
-    { "type": "text", "id": "offer_gift", "label": "Offer line, free item", "default": "free SiO2 Top Sealant", "info": "Hidden automatically when both sealants are sold out." },
+    { "type": "text", "id": "offer_gift", "label": "Offer line, free item", "default": "free SiO2 Top Sealant with every bottle", "info": "Hidden automatically when both sealants are sold out." },
     { "type": "text", "id": "countdown_soon", "label": "Countdown label before the start", "default": "Starts in" },
     { "type": "text", "id": "countdown_live", "label": "Countdown label during the offer", "default": "Ends in" },
     { "type": "text", "id": "ended_text", "label": "Ended message", "default": "This offer has ended." },
@@ -587,14 +613,14 @@
     { "type": "product", "id": "gift_marine", "label": "SiO2 Top Sealant, Marine" },
     { "type": "text", "id": "gift_eyebrow", "label": "Eyebrow", "default": "ON US" },
     { "type": "text", "id": "gift_heading", "label": "Heading", "default": "SiO2 Top Sealant 473ml" },
-    { "type": "text", "id": "gift_tag", "label": "Tag", "default": "Free with your order" },
-    { "type": "textarea", "id": "gift_body", "label": "Body", "default": "It goes into your cart with your first bottle: the Marine version with a Marine coating, the standard one otherwise. You can switch between them in the cart. One per order." },
+    { "type": "text", "id": "gift_tag", "label": "Tag", "default": "Free with every bottle" },
+    { "type": "textarea", "id": "gift_body", "label": "Body", "default": "One goes into the cart with every bottle: Marine with the Marine coatings, standard with the rest. You can switch versions in the cart. While supplies last." },
     { "type": "text", "id": "gift_soldout_text", "label": "Both sealants sold out", "default": "Free SiO2 while supplies last: sold out" },
 
     { "type": "header", "content": "Pickup" },
-    { "type": "text", "id": "pickup_eyebrow", "label": "Eyebrow", "default": "LOCAL PICKUP ONLY" },
+    { "type": "text", "id": "pickup_eyebrow", "label": "Eyebrow", "default": "LOCAL PICKUP" },
     { "type": "text", "id": "pickup_heading", "label": "Heading", "default": "Pick up in South Florida" },
-    { "type": "textarea", "id": "pickup_body", "label": "Body", "default": "Choose your pickup location at checkout and wait for the \"ready for pickup\" email. Bring your order confirmation and a photo ID." },
+    { "type": "textarea", "id": "pickup_body", "label": "Body", "default": "Choose a pickup location at checkout and wait for the \"ready for pickup\" email. Bring the order confirmation and a photo ID. Shipping to other states is available at checkout, at the regular rate." },
     { "type": "text", "id": "pickup_1_name", "label": "Location 1", "default": "Pompano Beach" },
     { "type": "textarea", "id": "pickup_1_address", "label": "Location 1 address", "default": "2250 W Copans Rd\nPompano Beach, FL 33069" },
     { "type": "text", "id": "pickup_1_note", "label": "Location 1 note", "default": "9 AM to 5 PM. Usually ready within 24 hours." },
@@ -610,7 +636,7 @@
       "id": "terms",
       "label": "Terms (one per line)",
       "info": "[period] is replaced with the period text. Keep these in sync with the automatic discounts.",
-      "default": "25% off every Professional Line 60ml bottle. Buy 5 bottles or more, mixed as you like, and every bottle is 35% off.\nOne free SiO2 Top Sealant 473ml per order, standard or Marine, with at least one bottle in the order.\nValid [period], Florida time.\nWhile supplies last. Stock is limited and quantities may be capped at what is on hand.\nKits and the Classic Line are not part of this offer.\nLocal pickup only, in Pompano Beach or at Safe Harbor Lauderdale Marine Center. No shipping and no free shipping.\nDiscounts apply automatically at checkout. Taxes calculated at checkout."
+      "default": "25% off every Professional Line 60ml bottle. Buy 5 bottles or more, mixed as you like, and every bottle is 35% off.\nOne free SiO2 Top Sealant 473ml with every bottle: Marine with the Marine coatings, standard with the rest, while supplies last.\nValid [period], Florida time.\nWhile supplies last. Stock is limited and quantities may be capped at what is on hand.\nKits and the Classic Line are not part of this offer.\nLocal pickup in Pompano Beach or at Safe Harbor Lauderdale Marine Center. Shipping to other states is charged at the regular rate; no free shipping.\nDiscounts apply automatically at checkout. Taxes calculated at checkout."
     },
 
     { "type": "header", "content": "Contact" },

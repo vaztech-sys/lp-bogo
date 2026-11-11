@@ -2,16 +2,17 @@
    Malbor Black Friday landing page — states, countdown and cart wiring.
 
    The offer: 25% off every Professional Line 60ml bottle, 35% off every
-   bottle from five up, and one free SiO2 Top Sealant per order.
+   bottle from five up, and one free SiO2 Top Sealant with every bottle.
 
    Shopify's automatic "buy X get Y" discount prices the free sealant at $0
    only when it is already in the cart; it never adds it. So:
 
-   - the first bottle goes in with the sealant in the same /cart/add.js call;
-   - after every change made on this page, the cart holds exactly one sealant
-     while it holds a bottle, and none once the last bottle is gone;
-   - the sealant has no quantity controls of its own, only a switch between
-     the standard and the Marine version.
+   - every bottle goes into the cart with its sealant in the same
+     /cart/add.js call: Marine with a Marine bottle, standard otherwise;
+   - after every change made on this page, the cart holds one sealant per
+     bottle (never more), and none once the last bottle is gone;
+   - the sealant has no quantity controls of its own, only a switch that
+     moves one unit between the standard and the Marine version.
 
    Every price, discount and total in the drawer comes from /cart.js, so the
    savings shown are the ones Shopify actually applied.
@@ -120,6 +121,28 @@
     return kind === "marine" ? gift.marineOk : gift.standardOk;
   }
 
+  // How many of a sealant the cart may hold: the stock on hand when Shopify
+  // tracks it, otherwise no limit.
+  function giftCap(kind) {
+    if (!gift[kind] || !giftStock(kind)) return 0;
+    var max = kind === "marine" ? gift.marineMax : gift.standardMax;
+    return max == null ? Infinity : max;
+  }
+
+  // Bottles in the cart by kind, and sealants by version.
+  function tally(cart) {
+    var t = { marineBottles: 0, otherBottles: 0, standard: 0, marine: 0 };
+    cart.items.forEach(function (item) {
+      if (isBottle(item)) {
+        if (bottles[item.variant_id].marine) t.marineBottles += item.quantity;
+        else t.otherBottles += item.quantity;
+      } else if (isGift(item)) {
+        t[giftIds[item.variant_id]] += item.quantity;
+      }
+    });
+    return t;
+  }
+
   // The sealant that goes with a bottle: the matching version, or the other
   // one if the matching version is out of stock.
   function giftFor(bottleId) {
@@ -206,48 +229,76 @@
   // elsewhere in the store, and the page leaves it alone.
   var adopted = false;
 
-  // Bring the cart in line with the rule: while there is a bottle, exactly
-  // one sealant at quantity 1; with no bottle, no sealant this page manages.
-  // Resolves with the cart as it stands afterwards. If Shopify refuses (a
-  // sealant just sold out) the cart is left as it is.
-  function syncGift(cart) {
-    var count = bottleCount(cart);
-    var lines = giftLines(cart);
-    var updates = {};
-    var changed = false;
+  // Work out how many of each sealant the cart should hold:
+  // - one per bottle in total, never more;
+  // - when there are too many (a bottle was removed), drop first the version
+  //   that outnumbers its own bottles, so a shopper's switch is kept;
+  // - when there are too few (live offer only), add the matching version,
+  //   or the other one if the matching one is out of stock or capped.
+  function wantedGifts(t, live) {
+    var bottlesTotal = t.marineBottles + t.otherBottles;
+    var want = { standard: t.standard, marine: t.marine };
+    var excess = want.standard + want.marine - bottlesTotal;
 
-    if (count === 0) {
-      if (!adopted || !lines.length) return Promise.resolve(cart);
-      lines.forEach(function (line) {
-        updates[line.variant_id] = 0;
+    if (excess > 0) {
+      ["standard", "marine"].forEach(function (kind) {
+        var own = kind === "marine" ? t.marineBottles : t.otherBottles;
+        var drop = Math.min(excess, Math.max(0, want[kind] - own));
+        want[kind] -= drop;
+        excess -= drop;
       });
+      ["standard", "marine"].forEach(function (kind) {
+        var drop = Math.min(excess, want[kind]);
+        want[kind] -= drop;
+        excess -= drop;
+      });
+    }
+
+    var missing = bottlesTotal - want.standard - want.marine;
+    if (missing > 0 && live) {
+      var needs = [
+        ["marine", Math.max(0, t.marineBottles - want.marine)],
+        ["standard", Math.max(0, t.otherBottles - want.standard)],
+      ];
+      needs.forEach(function (pair) {
+        var kind = pair[0];
+        var other = kind === "marine" ? "standard" : "marine";
+        var need = Math.min(pair[1], missing);
+        var own = Math.min(need, Math.max(0, giftCap(kind) - want[kind]));
+        want[kind] += own;
+        missing -= own;
+        var rest = Math.min(need - own, Math.max(0, giftCap(other) - want[other]));
+        want[other] += rest;
+        missing -= rest;
+      });
+    }
+    return want;
+  }
+
+  // Bring the cart in line with wantedGifts. Resolves with the cart as it
+  // stands afterwards. If Shopify refuses (a sealant just sold out) the cart
+  // is left as it is.
+  function syncGift(cart) {
+    var t = tally(cart);
+    var bottlesTotal = t.marineBottles + t.otherBottles;
+    var haveGifts = t.standard + t.marine;
+
+    if (bottlesTotal === 0) {
+      if (!adopted || !haveGifts) return Promise.resolve(cart);
       adopted = false;
-      changed = true;
     } else {
       adopted = true;
-
-      if (lines.length) {
-        // Keep the oldest sealant line (cart.items lists newest first).
-        var keep = lines[lines.length - 1];
-        lines.forEach(function (line) {
-          var want = line === keep ? 1 : 0;
-          if (line.quantity !== want || line.variant_id !== keep.variant_id) {
-            updates[line.variant_id] = line.variant_id === keep.variant_id ? 1 : 0;
-            changed = true;
-          }
-        });
-      } else if (root.dataset.lpState === "live") {
-        // The sealant went missing (removed on the cart page, say). Put it
-        // back, matched to the first bottle in the cart.
-        var bottleLines = cart.items.filter(isBottle);
-        var firstBottle = bottleLines[bottleLines.length - 1];
-        var picks = giftFor(firstBottle.variant_id);
-        if (picks.length) {
-          updates[picks[0]] = 1;
-          changed = true;
-        }
-      }
     }
+
+    var want = bottlesTotal === 0 ? { standard: 0, marine: 0 } : wantedGifts(t, root.dataset.lpState === "live");
+    var updates = {};
+    var changed = false;
+    ["standard", "marine"].forEach(function (kind) {
+      if (gift[kind] && want[kind] !== t[kind]) {
+        updates[gift[kind]] = want[kind];
+        changed = true;
+      }
+    });
 
     if (!changed) return Promise.resolve(cart);
 
@@ -316,12 +367,13 @@
         if (free) {
           var kind = giftIds[item.variant_id];
           var other = kind === "marine" ? "standard" : "marine";
-          var canSwitch = gift[other] && giftStock(other);
+          var counts = tally(cart);
+          var canSwitch = counts[other] < giftCap(other);
           controls =
-            '<p class="lp-line__gift">Free with your order</p>' +
+            '<p class="lp-line__gift">Free with your bottles &times; ' + item.quantity + "</p>" +
             (canSwitch
               ? '<button type="button" class="lp-line__switch" data-lp-switch="' + gift[other] + '" data-lp-switch-from="' +
-                item.variant_id + '">Switch to the ' + (other === "marine" ? "Marine" : "standard") + " version</button>"
+                item.variant_id + '">Switch one to ' + (other === "marine" ? "Marine" : "standard") + "</button>"
               : "");
         } else {
           controls =
@@ -378,7 +430,7 @@
     footEl.innerHTML =
       savingsBlock +
       '<dl class="lp-subtotal"><dt>Subtotal</dt><dd>' + formatMoney(cart.total_price) + "</dd></dl>" +
-      '<p class="lp-drawer__note">Local pickup only · Taxes calculated at checkout</p>' +
+      '<p class="lp-drawer__note">Local pickup or shipping at checkout · Taxes calculated at checkout</p>' +
       '<a class="lp-btn lp-btn--block" href="/checkout">CHECKOUT</a>';
   }
 
@@ -496,10 +548,14 @@
         var bottle = { id: variantId, quantity: 1 };
         var payloads = [];
 
-        // One click, two items: the first bottle brings its sealant along.
-        if (!giftLines(cart).length) {
+        // One click, two items: every bottle brings its sealant along, as
+        // long as the sealant has stock left and the cart does not already
+        // hold more sealants than bottles.
+        var t = tally(cart);
+        if (t.standard + t.marine <= t.marineBottles + t.otherBottles) {
           giftFor(variantId).forEach(function (giftId) {
-            payloads.push([bottle, { id: giftId, quantity: 1 }]);
+            var kind = giftIds[giftId];
+            if (t[kind] < giftCap(kind)) payloads.push([bottle, { id: giftId, quantity: 1 }]);
           });
         }
         payloads.push([bottle]);
@@ -548,10 +604,14 @@
     );
   }
 
+  // Move one free unit from one version to the other.
   function switchGift(fromId, toId) {
+    var cart = lastCart;
+    if (!cart) return;
+    var t = tally(cart);
     var updates = {};
-    updates[fromId] = 0;
-    updates[toId] = 1;
+    updates[fromId] = t[giftIds[fromId]] - 1;
+    updates[toId] = t[giftIds[toId]] + 1;
     busy(request("/cart/update.js", { updates: updates }).then(syncGift));
   }
 
@@ -633,8 +693,8 @@
   tick();
   setInterval(tick, 1000);
 
-  // On load: adopt a sealant already sitting next to a bottle, and tidy the
-  // cart if it breaks the one-sealant rule (e.g. two added on the cart page).
+  // On load: adopt sealants already sitting next to bottles, and tidy the
+  // cart if it breaks the one-per-bottle rule (e.g. changed on the cart page).
   getCart()
     .then(function (cart) {
       if (bottleCount(cart) > 0 && giftLines(cart).length) adopted = true;

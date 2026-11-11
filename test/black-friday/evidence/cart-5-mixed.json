@@ -1,5 +1,5 @@
 {
-  "item_count": 6,
+  "item_count": 10,
   "items": [
     {
       "key": "50577721524544:0",
@@ -25,7 +25,30 @@
       "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/Adobe_Express_-_file_1.png"
     },
     {
-      "key": "50577714217280:1",
+      "key": "50673082204480:1",
+      "id": 50673082204480,
+      "variant_id": 50673082204480,
+      "product_title": "SiO2 Top Sealant 473ml Marine",
+      "handle": "sio2-top-sealant-473ml-marine",
+      "variant_title": null,
+      "quantity": 1,
+      "price": 3900,
+      "original_price": 3900,
+      "original_line_price": 3900,
+      "line_price": 3900,
+      "final_price": 0,
+      "final_line_price": 0,
+      "total_discount": 3900,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday free SiO2 Top Sealant",
+          "amount": 3900
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/S1O2SealantMarine473_86391424-b2f6-4312-aee7-fcdc58dc5654.webp"
+    },
+    {
+      "key": "50577714217280:2",
       "id": 50577714217280,
       "variant_id": 50577714217280,
       "product_title": "Leather Coating 60ml",
@@ -48,7 +71,30 @@
       "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/LEATHER.webp"
     },
     {
-      "key": "50577710022976:2",
+      "key": "50489274302784:3",
+      "id": 50489274302784,
+      "variant_id": 50489274302784,
+      "product_title": "SIO2 Top Sealant 473ml",
+      "handle": "sio2-top-sealant-473ml",
+      "variant_title": null,
+      "quantity": 4,
+      "price": 3900,
+      "original_price": 3900,
+      "original_line_price": 15600,
+      "line_price": 15600,
+      "final_price": 0,
+      "final_line_price": 0,
+      "total_discount": 15600,
+      "line_level_discount_allocations": [
+        {
+          "title": "Black Friday free SiO2 Top Sealant",
+          "amount": 15600
+        }
+      ],
+      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SiO2Sealant473_0d97c731-cdfd-4b45-8293-640711208571.webp"
+    },
+    {
+      "key": "50577710022976:4",
       "id": 50577710022976,
       "variant_id": 50577710022976,
       "product_title": "Glass Coating 60ml",
@@ -71,7 +117,7 @@
       "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/GLASS_1.webp"
     },
     {
-      "key": "50503909343552:3",
+      "key": "50503909343552:5",
       "id": 50503909343552,
       "variant_id": 50503909343552,
       "product_title": "Black Ceramic 10H 60ml",
@@ -94,7 +140,7 @@
       "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/BLACK_4c0211fd-b026-4f43-bf49-cb06467eeea4.webp"
     },
     {
-      "key": "50503904559424:4",
+      "key": "50503904559424:6",
       "id": 50503904559424,
       "variant_id": 50503904559424,
       "product_title": "9H Special Edition 60ml",
@@ -115,34 +161,11 @@
         }
       ],
       "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SPEDITION_1.webp"
-    },
-    {
-      "key": "50489274302784:5",
-      "id": 50489274302784,
-      "variant_id": 50489274302784,
-      "product_title": "SIO2 Top Sealant 473ml",
-      "handle": "sio2-top-sealant-473ml",
-      "variant_title": null,
-      "quantity": 1,
-      "price": 3900,
-      "original_price": 3900,
-      "original_line_price": 3900,
-      "line_price": 3900,
-      "final_price": 0,
-      "final_line_price": 0,
-      "total_discount": 3900,
-      "line_level_discount_allocations": [
-        {
-          "title": "Black Friday free SiO2 Top Sealant",
-          "amount": 3900
-        }
-      ],
-      "image": "https://cdn.shopify.com/s/files/1/0929/1828/4608/files/SiO2Sealant473_0d97c731-cdfd-4b45-8293-640711208571.webp"
     }
   ],
-  "original_total_price": 50200,
+  "original_total_price": 65800,
   "items_subtotal_price": 30095,
   "total_price": 30095,
-  "total_discount": 20105,
+  "total_discount": 35705,
   "currency": "USD"
 }

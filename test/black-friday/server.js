@@ -9,7 +9,7 @@
 //   "deny" variants, newest line first).
 // - Applies the three automatic discounts as they are to be configured:
 //   25% on every bottle, 35% from 5 bottles (best one per line), and one
-//   free SiO2 Top Sealant per order with at least one bottle.
+//   free SiO2 Top Sealant per bottle.
 //
 // Product data (ids, prices, stock, policies, images) is a snapshot of the
 // Admin API taken on 2026-11-11.
@@ -93,15 +93,16 @@ let discountsActive = true;
 function cartJson() {
   const bottleQty = lines.filter((l) => isBottleId(l.variant_id)).reduce((s, l) => s + l.quantity, 0);
   const pct = !discountsActive || bottleQty === 0 ? 0 : bottleQty >= 5 ? 35 : 25;
-  let giftLeft = discountsActive && bottleQty > 0 ? 1 : 0;
-
-  // Allocate the free unit to the oldest sealant line, as "1 use per order".
+  // Buy 1 bottle, get 1 sealant at 100%, no limit of uses per order: as many
+  // free sealant units as bottles, allocated to the oldest sealant lines.
+  let giftLeft = discountsActive ? bottleQty : 0;
   const giftOrder = lines.map((l, i) => i).reverse();
   const giftDiscount = {};
   for (const i of giftOrder) {
-    if (giftLeft && isGiftId(lines[i].variant_id)) {
-      giftDiscount[i] = byVariant[lines[i].variant_id].variant.price;
-      giftLeft = 0;
+    if (giftLeft > 0 && isGiftId(lines[i].variant_id)) {
+      const units = Math.min(giftLeft, lines[i].quantity);
+      giftDiscount[i] = byVariant[lines[i].variant_id].variant.price * units;
+      giftLeft -= units;
     }
   }
 

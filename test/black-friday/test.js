@@ -116,7 +116,7 @@ async function addFromCard(page, variantId) {
   check("soon: full price only", await page.locator(".lp-price--deal").first().isHidden());
   check("soon: offer line", (await page.locator(".lp-hero__offer").innerText()).includes("25% off · 35% when you buy 5 · free SiO2 Top Sealant"));
   const pageText = await page.evaluate(() => document.body.innerText + " " + document.title + " " + [...document.querySelectorAll("meta[content]")].map((m) => m.content).join(" "));
-  const banned = pageText.match(/permanent|\bshield|\bprotector|months?\b|years?\b|lifetime|delivery|car lifetime coating|3 years boat coating|\bkit [67]\b/gi);
+  const banned = pageText.match(/permanent|\bshield|\bprotector|months?\b|years?\b|lifetime|delivery|for your (boat|car)\b|car lifetime coating|3 years boat coating|\bkit [67]\b/gi);
   check("copy: no legal-banned words on the page", !banned, banned ? banned.join(", ") : "");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   check("375px: no horizontal scroll", overflow <= 0, "overflow " + overflow + "px");
@@ -160,6 +160,20 @@ async function addFromCard(page, variantId) {
   );
   await page.screenshot({ path: path.join(OUT, "live-375-drawer-1-bottle.png") });
 
+  /* 2b. "+" on the bottle in the drawer brings a second sealant ---------- */
+  await page.locator(".lp-line", { hasText: "9H Special Edition" }).locator('[aria-label^="Increase"]').click();
+  await page.waitForFunction(() => !document.querySelector("[data-lp-drawer][aria-busy]"));
+  await page.waitForTimeout(300);
+  c = await cart();
+  let gq = c.items.filter((i) => i.variant_id === V.sio2 || i.variant_id === V.sio2m).reduce((s, i) => s + i.quantity, 0);
+  check("drawer +: 2 bottles, 2 SiO2", gq === 2, JSON.stringify(summary(c)));
+  await page.locator(".lp-line", { hasText: "9H Special Edition" }).locator('[aria-label^="Decrease"]').click();
+  await page.waitForFunction(() => !document.querySelector("[data-lp-drawer][aria-busy]"));
+  await page.waitForTimeout(300);
+  c = await cart();
+  gq = c.items.filter((i) => i.variant_id === V.sio2 || i.variant_id === V.sio2m).reduce((s, i) => s + i.quantity, 0);
+  check("drawer −: back to 1 bottle, 1 SiO2", gq === 1, JSON.stringify(summary(c)));
+
   /* 3. Five mixed bottles ------------------------------------------------- */
   for (const id of [V.black, V.glass, V.leather, V.plastic]) await addFromCard(page, id);
   c = await cart();
@@ -168,17 +182,33 @@ async function addFromCard(page, variantId) {
   const all35 = bottles.every((i) => i.final_line_price === Math.round(i.original_line_price * 0.65));
   const gifts = c.items.filter((i) => i.variant_id === V.sio2 || i.variant_id === V.sio2m);
   check("5 mixed: 35% on every bottle", bottles.length === 5 && all35, JSON.stringify(summary(c)));
-  check("5 mixed: exactly one SiO2, at $0", gifts.length === 1 && gifts[0].quantity === 1 && gifts[0].final_line_price === 0);
+  const giftUnits = gifts.reduce((s, i) => s + i.quantity, 0);
+  check(
+    "5 mixed: 5 SiO2, all at $0 (4 standard is all the stock; the 5th is Marine)",
+    giftUnits === 5 && gifts.every((i) => i.final_line_price === 0),
+    JSON.stringify(summary(c))
+  );
   check("drawer: 35% unlocked", (await page.locator("[data-lp-progress]").innerText()).includes("35% off unlocked"));
   check("drawer: gift has no quantity controls", (await page.locator(".lp-line", { hasText: "SIO2 Top Sealant" }).locator("[data-lp-qty]").count()) === 0);
   await page.screenshot({ path: path.join(OUT, "live-375-drawer-5-bottles.png") });
 
-  /* 4. Switch the free sealant -------------------------------------------- */
-  await page.locator("[data-lp-switch]").click();
+  /* 4. Switch one free sealant ------------------------------------------- */
+  await page.locator("[data-lp-switch]").first().click();
   await page.waitForTimeout(500);
   c = await cart();
-  const g2 = c.items.filter((i) => i.variant_id === V.sio2 || i.variant_id === V.sio2m);
-  check("switch: now the Marine sealant, still one, still $0", g2.length === 1 && g2[0].variant_id === V.sio2m && g2[0].final_line_price === 0);
+  const qty = (id) => c.items.filter((i) => i.variant_id === id).reduce((s, i) => s + i.quantity, 0);
+  check(
+    "switch: one unit moves to Marine, total still 5, all $0",
+    qty(V.sio2) === 3 && qty(V.sio2m) === 2 && c.items.filter((i) => i.variant_id === V.sio2 || i.variant_id === V.sio2m).every((i) => i.final_line_price === 0),
+    JSON.stringify(summary(c))
+  );
+
+  /* 4b. Remove one bottle: one sealant goes ------------------------------- */
+  await page.locator(".lp-line", { hasText: "Glass Coating" }).locator(".lp-line__remove").click();
+  await page.waitForFunction(() => !document.querySelector("[data-lp-drawer][aria-busy]"));
+  await page.waitForTimeout(300);
+  c = await cart();
+  check("remove 1 of 5 bottles: 4 SiO2 left", qty(V.sio2) + qty(V.sio2m) === 4, JSON.stringify(summary(c)));
 
   /* 5. Remove every bottle: the sealant goes too ------------------------- */
   for (let n = 0; n < 6; n++) {
@@ -202,7 +232,8 @@ async function addFromCard(page, variantId) {
   c = await cart();
   save("cart-marine-first.json", c);
   const gm = c.items.filter((i) => i.variant_id === V.sio2 || i.variant_id === V.sio2m);
-  check("marine first: SiO2 Marine, only one", gm.length === 1 && gm[0].variant_id === V.sio2m, JSON.stringify(summary(c)));
+  const gmq = (id) => gm.filter((i) => i.variant_id === id).reduce((s, i) => s + i.quantity, 0);
+  check("Marine bottle + other bottle: 1 SiO2 Marine + 1 standard", gmq(V.sio2m) === 1 && gmq(V.sio2) === 1, JSON.stringify(summary(c)));
   await page.close();
 
   /* 7. Matching sealant sold out: the other one is used ------------------ */
@@ -255,7 +286,7 @@ async function addFromCard(page, variantId) {
   await page.waitForURL("**/cart");
   c = await cart();
   const ng = c.items.filter((i) => i.variant_id === V.sio2 || i.variant_id === V.sio2m);
-  check("no JS: second bottle does not add a second sealant", ng.length === 1 && ng[0].quantity === 1);
+  check("no JS: second bottle brings its own sealant (standard)", ng.reduce((s, i) => s + i.quantity, 0) === 2 && ng.some((i) => i.variant_id === V.sio2), JSON.stringify(summary(c)));
   await page.close();
 
   /* 11. After the end ---------------------------------------------------- */
