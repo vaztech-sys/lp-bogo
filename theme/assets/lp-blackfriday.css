@@ -503,6 +503,7 @@
 }
 
 .lp-hero__offer {
+  text-wrap: balance;
   font-family: var(--lp-display);
   font-weight: 800;
   font-size: clamp(18px, 4.6vw, 26px);
@@ -511,7 +512,7 @@
   max-width: 720px;
 }
 
-.lp-hero__offer-gift { color: var(--lp-accent); white-space: nowrap; }
+.lp-hero__offer-gift { color: var(--lp-accent); display: inline-block; }
 
 .lp-ended {
   font-family: var(--lp-display);

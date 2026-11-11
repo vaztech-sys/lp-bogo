@@ -17,9 +17,9 @@ Professional Line 60ml bottles only. The Classic Line and the kits are out.
 |---|---|
 | Every bottle | 25% off |
 | 5 bottles or more, mixed | 35% off every bottle |
-| Free item | 1 SiO2 Top Sealant 473ml per order, standard or Marine |
-| Period | Section settings (see [Dates](#dates)); default Nov 27, 2026 |
-| Fulfilment | Local pickup only: Pompano Beach, Safe Harbor Lauderdale Marine Center |
+| Free item | 1 SiO2 Top Sealant 473ml per bottle: Marine with Marine bottles, standard with the rest |
+| Period | Fri Nov 27 00:00 to Mon Nov 30 23:59, Florida time (section settings, see [Dates](#dates)) |
+| Fulfilment | Local pickup (Pompano Beach, Safe Harbor Lauderdale Marine Center) is what the page promotes; the store also ships to other states at the regular rate |
 
 ## Files
 
@@ -71,40 +71,40 @@ used once in fifteen days, because shoppers had to add the free unit by hand.
 
 So this page:
 
-- **One click, two items.** The first bottle goes in with the sealant in the
-  same `/cart/add.js` request: Marine sealant with a Marine bottle (handle
-  contains `marine`), standard otherwise. If the cart already has a sealant,
-  only the bottle goes in. The no-JS form does the same with `items[][id]` /
-  `items[][quantity]`, and leaves the sealant out when the cart already has one.
-- **Sold out.** A variant counts as in stock only if it is available *and*, when
+- **One click, two items, for every bottle.** Each bottle goes in with a
+  sealant in the same `/cart/add.js` request: Marine sealant with a Marine
+  bottle (handle contains `marine`), standard otherwise. The no-JS form does
+  the same with `items[][id]` / `items[][quantity]`.
+- **One per bottle, never more.** After any change on the page, the cart holds
+  as many sealants as bottles. When bottles go, sealants go too, first from
+  the version that outnumbers its own bottles (so a shopper's switch is kept).
+  A sealant in the cart with no bottle on page load is left alone (it may have
+  been bought at full price elsewhere in the store).
+- **Stock.** A variant counts as in stock only if it is available *and*, when
   Shopify tracks it, has at least one on hand (several of these products keep
-  selling at zero). Sold-out bottles show "Sold out". If the matching sealant is
-  out, the other version is used; if both are out, the page says "Free SiO2
-  while supplies last: sold out", drops the free item from the offer line and
-  the bottle sells alone. If a sealant sells out between page load and click,
-  the script falls back to the other version, then to the bottle alone.
-- **Kept in step.** After any change on the page, the cart holds exactly one
-  sealant at quantity 1 while it has a bottle, and none once the last bottle
-  is gone. A sealant in the cart with no bottle on page load is left alone
-  (it may have been bought at full price elsewhere in the store).
-- **The drawer** shows the sealant as FREE with no quantity controls, only a
-  standard/Marine switch; a progress bar "Add N more for 35% off"; and the
-  savings line from Shopify's `total_discount`.
+  selling at zero). The cart never takes more of a sealant than is on hand:
+  past that, the other version is used, and past both, bottles sell without
+  one. If both are out, the page says "Free SiO2 while supplies last: sold
+  out" and drops the free item from the offer line. The two sealants had 4 and
+  7 units on Nov 11, so at one per bottle they cover about 11 bottles.
+- **The drawer** shows the sealants as FREE with no quantity controls of their
+  own, only "Switch one to Marine/standard"; a progress bar "Add N more for 35%
+  off"; and the savings line from Shopify's `total_discount`.
 
-The lock applies to this page's drawer. The theme's own `/cart` page can still
-change the sealant's quantity; the free-item discount is capped at one use per
-order, so a second unit would be charged at full price.
+The page enforces this in its own drawer. The theme's `/cart` page can still
+change quantities; the free-item discount gives one free sealant per bottle
+in the order, so extra sealants would be charged at full price.
 
 ## Shopify setup
 
-Created on 2026-11-11, **not active**:
+Created on 2026-11-11, **not active** (free-sealant limit removed on Nov 11 after Fernando's answers):
 
 | Object | Setting |
 |---|---|
 | Collection **Professional — 60 ml** (`professional-60ml`) | Automatic: product type = Professional AND title contains `60ml`. 15 products, no kits. Not published to the storefront (not needed for discounts) |
 | Automatic discount **Black Friday 2026 — Professional 60ml 25% off** | 25% on the collection, no minimum, combines with product discounts |
 | Automatic discount **Black Friday 2026 — Professional 60ml 35% off (5+)** | 35% on the collection, minimum 5 items, combines with product discounts |
-| Automatic discount **Black Friday 2026 — Free SiO2 Top Sealant 473ml** | Buy 1 from the collection, get 1 of either SiO2 Top Sealant 473ml at 100%, 1 use per order, combines with product discounts |
+| Automatic discount **Black Friday 2026 — Free SiO2 Top Sealant 473ml** | Buy 1 from the collection, get 1 of either SiO2 Top Sealant 473ml at 100%, no limit of uses per order (one per bottle), combines with product discounts |
 
 The three were created with a one-minute window on Nov 10, so they show as
 **Expired** and have never applied. To turn them on, set their start and end
@@ -140,8 +140,9 @@ Republish **Boat Show LP (Oct 15 – Nov 1)** or **BOGO LP — mobile fixes** in
 
 No "permanent" in any form, no environmental claims, no competitor
 comparisons, no protection-duration numbers anywhere ("9H" and "10H" only as
-product names), no kit names, no delivery (local pickup only), phone
-(925) 876-9005. Check before publishing:
+product names), no kit names, no "delivery" (the page promotes local pickup; shipping is
+charged at the regular rate), "for the boat / for the car", never "for your
+boat / car", phone (925) 876-9005. Check before publishing:
 
 ```sh
 grep -rniE "BOGO|Buy 1|gallon|Boat Show|FLIBS|October|delivery|permanent|months|years|lifetime|booth|visit us" \

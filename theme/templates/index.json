@@ -171,8 +171,8 @@
         "step_3": {
           "type": "step",
           "settings": {
-            "title": "Your free SiO2 Top Sealant goes in the cart",
-            "body": "It is added with your first bottle. One per order."
+            "title": "A free SiO2 Top Sealant with every bottle",
+            "body": "It goes into the cart with each bottle: Marine with the Marine coatings, standard with the rest."
           }
         },
         "step_4": {
@@ -206,11 +206,11 @@
       ],
       "settings": {
         "start_at": "2026-11-27 00:00",
-        "end_at": "2026-11-27 23:59",
+        "end_at": "2026-11-30 23:59",
         "tz_offset": "-0500",
         "after_end": "ended",
-        "period_short": "NOV\n27",
-        "period_long": "Black Friday, Friday November 27, 2026",
+        "period_short": "NOV\n27–30",
+        "period_long": "Black Friday to Cyber Monday, Nov 27–30",
         "hero_product_1": "black-ceramic-10h-60ml-marine",
         "hero_product_2": "9h-special-edition-60ml-marine",
         "hero_product_3": "glass-coating-60ml",
