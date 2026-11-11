@@ -4,92 +4,218 @@
     "lp_blackfriday": {
       "type": "lp-blackfriday",
       "blocks": {
-        "product_hydro": {
+        "bottle_9h_special_edition_60ml_marine": {
           "type": "product",
           "settings": {
-            "product": "hydro-coat-3-78l",
-            "gift": "hydro-coat-473ml-1",
-            "gift_size": "473ML",
-            "subtitle": "3.78L GALLON · SiO2 SPRAY SEALANT",
-            "description": "Spray sealant with hydrophobic polymers and SiO2 nanoparticles. Easy to apply after the wash for a deep, slick gloss that sheds water."
+            "product": "9h-special-edition-60ml-marine",
+            "in_boat": true,
+            "in_car": false,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for gelcoat and marine paint. High gloss, water beads off."
           }
         },
-        "product_apc": {
+        "bottle_black_ceramic_10h_60ml_marine": {
           "type": "product",
           "settings": {
-            "product": "deep-cleaning-apc-3-78l",
-            "gift": "deep-cleaning-apc-473ml",
-            "gift_size": "473ML",
-            "subtitle": "3.78L GALLON · ALL-PURPOSE CLEANER",
-            "description": "Super-concentrated all-purpose cleaner for interior and exterior. Engine rooms, non-skid decks, interiors and heavy soil. Cuts through grease, salt and grime, rinsing clean without leaving residue."
+            "product": "black-ceramic-10h-60ml-marine",
+            "in_boat": true,
+            "in_car": false,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for gelcoat, for a deep, glossy finish."
           }
         },
-        "product_shampoo": {
+        "bottle_pure_ceramic_60ml_marine": {
           "type": "product",
           "settings": {
-            "product": "max-pro-shampoo-3-78l-copy",
-            "gift": "max-pro-shampoo-946ml",
-            "gift_size": "946ML",
-            "subtitle": "3.78L GALLON · SiO2 HIGH-FOAM SHAMPOO",
-            "description": "SiO2 shampoo for detail washes and salt rinses on hulls, fishing tackle, trailers and vehicles. Leaves a protective layer that will not yellow. Safe on fiberglass, epoxy paints, clear coat, metals, wood and plastics."
+            "product": "pure-ceramic-60ml-marine",
+            "in_boat": true,
+            "in_car": false,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for gelcoat. Clean gloss, easy application."
           }
         },
-        "product_nano": {
+        "bottle_fine_touch_ceramic_60ml_marine": {
           "type": "product",
           "settings": {
-            "product": "nano-polymer-spray-3-78l",
-            "gift": "nano-polymer-spray-473ml",
-            "gift_size": "473ML",
-            "subtitle": "3.78L GALLON · NANO POLYMER SPRAY",
-            "description": "Nano polymer protection in a spray. Adds a hydrophobic layer and high gloss in a quick spray-and-wipe step after washing."
+            "product": "fine-touch-ceramic-60ml-marine",
+            "in_boat": true,
+            "in_car": false,
+            "in_interior": false,
+            "subtitle": "A light ceramic coat for gelcoat, quick to apply."
           }
         },
-        "product_nano_marine": {
+        "bottle_glass_coating_60ml": {
           "type": "product",
           "settings": {
-            "product": "nano-polymer-spray-3-78l-marine",
-            "gift": "nano-polymer-spray-473ml-marine",
-            "gift_size": "473ML",
-            "subtitle": "3.78L GALLON · NANO POLYMER SPRAY MARINE",
-            "description": "The marine version of Nano Polymer Spray, made for gelcoat and the salt and sun of life on the water. Spray, spread and buff after the wash for gloss and water beading."
+            "product": "glass-coating-60ml",
+            "in_boat": true,
+            "in_car": false,
+            "in_interior": true,
+            "subtitle": "Ceramic coating for windshields and glass. Water sheets off."
+          }
+        },
+        "bottle_9h_special_edition_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "9h-special-edition-60ml",
+            "in_boat": false,
+            "in_car": true,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for paint. High gloss, water beads off."
+          }
+        },
+        "bottle_black_ceramic_10h_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "black-ceramic-10h-60ml",
+            "in_boat": false,
+            "in_car": true,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for paint, for a deep, glossy finish."
+          }
+        },
+        "bottle_pure_ceramic_coating_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "pure-ceramic-coating-60ml",
+            "in_boat": false,
+            "in_car": true,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for paint. Clean gloss, easy application."
+          }
+        },
+        "bottle_fine_touch_ceramic_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "fine-touch-ceramic-60ml",
+            "in_boat": false,
+            "in_car": true,
+            "in_interior": false,
+            "subtitle": "A light ceramic coat for paint, quick to apply."
+          }
+        },
+        "bottle_wheel_caliper_ceramic_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "wheel-caliper-ceramic-60ml",
+            "in_boat": false,
+            "in_car": true,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for wheels and calipers. Brake dust wipes off more easily."
+          }
+        },
+        "bottle_ppf_vinyl_ceramic_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "ppf-vinyl-ceramic-60ml",
+            "in_boat": false,
+            "in_car": true,
+            "in_interior": false,
+            "subtitle": "Ceramic coating for paint protection film and vinyl wraps."
+          }
+        },
+        "bottle_ppf_vinyl_matte_ceramic_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "ppf-vinyl-matte-ceramic-60ml",
+            "in_boat": false,
+            "in_car": true,
+            "in_interior": false,
+            "subtitle": "For matte PPF and vinyl. Protects without adding gloss."
+          }
+        },
+        "bottle_leather_coating_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "leather-coating-60ml",
+            "in_boat": false,
+            "in_car": false,
+            "in_interior": true,
+            "subtitle": "Ceramic coating for leather seats and trim."
+          }
+        },
+        "bottle_leather_ceramic_matte_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "leather-ceramic-matte-60ml",
+            "in_boat": false,
+            "in_car": false,
+            "in_interior": true,
+            "subtitle": "For leather, with a natural matte finish."
+          }
+        },
+        "bottle_plastic_coating_60ml": {
+          "type": "product",
+          "settings": {
+            "product": "plastic-coating-60ml",
+            "in_boat": false,
+            "in_car": false,
+            "in_interior": true,
+            "subtitle": "Ceramic coating for interior and exterior plastics and trim."
           }
         },
         "step_1": {
           "type": "step",
           "settings": {
-            "tag": "STEP 01",
-            "title": "Add the Gallon",
-            "body": "Each gallon goes into your cart together with its free small size."
+            "title": "Pick your Professional Line coatings",
+            "body": "Mix boat, car and interior bottles as you like."
           }
         },
         "step_2": {
           "type": "step",
           "settings": {
-            "tag": "STEP 02",
-            "title": "Automatic Discount",
-            "body": "The small size is set to $0 at checkout. No code required."
+            "title": "25% off at checkout, 35% with 5 or more",
+            "body": "The discount comes off automatically. No code."
           }
         },
         "step_3": {
           "type": "step",
           "settings": {
-            "tag": "STEP 03",
-            "title": "Local Pickup",
-            "body": "Pick up in Pompano Beach or at Safe Harbor Lauderdale Marine Center, Fort Lauderdale."
+            "title": "Your free SiO2 Top Sealant goes in the cart",
+            "body": "It is added with your first bottle. One per order."
+          }
+        },
+        "step_4": {
+          "type": "step",
+          "settings": {
+            "title": "Pick up locally",
+            "body": "In Pompano Beach or at Safe Harbor Lauderdale Marine Center."
           }
         }
       },
       "block_order": [
-        "product_hydro",
-        "product_apc",
-        "product_shampoo",
-        "product_nano",
-        "product_nano_marine",
+        "bottle_9h_special_edition_60ml_marine",
+        "bottle_black_ceramic_10h_60ml_marine",
+        "bottle_pure_ceramic_60ml_marine",
+        "bottle_fine_touch_ceramic_60ml_marine",
+        "bottle_glass_coating_60ml",
+        "bottle_9h_special_edition_60ml",
+        "bottle_black_ceramic_10h_60ml",
+        "bottle_pure_ceramic_coating_60ml",
+        "bottle_fine_touch_ceramic_60ml",
+        "bottle_wheel_caliper_ceramic_60ml",
+        "bottle_ppf_vinyl_ceramic_60ml",
+        "bottle_ppf_vinyl_matte_ceramic_60ml",
+        "bottle_leather_coating_60ml",
+        "bottle_leather_ceramic_matte_60ml",
+        "bottle_plastic_coating_60ml",
         "step_1",
         "step_2",
-        "step_3"
+        "step_3",
+        "step_4"
       ],
       "settings": {
+        "start_at": "2026-11-27 00:00",
+        "end_at": "2026-11-27 23:59",
+        "tz_offset": "-0500",
+        "after_end": "ended",
+        "period_short": "NOV\n27",
+        "period_long": "Black Friday, Friday November 27, 2026",
+        "hero_product_1": "black-ceramic-10h-60ml-marine",
+        "hero_product_2": "9h-special-edition-60ml-marine",
+        "hero_product_3": "glass-coating-60ml",
+        "gift_standard": "sio2-top-sealant-473ml",
+        "gift_marine": "sio2-top-sealant-473ml-marine",
         "logo_url": "https://malborcoatings.com/"
       }
     }

@@ -5,16 +5,16 @@
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
-        "announcement-boatshow": {
+        "announcement-blackfriday": {
           "type": "announcement",
           "settings": {
-            "text": "FREE SMALL SIZE WITH EVERY 3.78L GALLON · OCT 15 – NOV 1 · WHILE SUPPLIES LAST",
+            "text": "BLACK FRIDAY IS COMING · PROFESSIONAL LINE ON SALE · NOV 27",
             "link": "/"
           }
         }
       },
       "block_order": [
-        "announcement-boatshow"
+        "announcement-blackfriday"
       ],
       "settings": {
         "color_scheme": "accent-1",

@@ -2,8 +2,7 @@
 <html class="js" lang="{{ request.locale.iso_code }}">
   <head>
     {%- comment -%}
-      Minimal layout for the Boat Show campaign landing page (copied from
-      layout/lp-bogo.liquid).
+      Minimal layout for the Black Friday 2026 landing page.
 
       The page renders its own header, footer and cart drawer, so this layout
       deliberately omits the theme's header-group, footer-group, cart drawer and
@@ -19,6 +18,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#0b0908">
     <link rel="canonical" href="{{ canonical_url }}">
 
     {%- if settings.favicon != blank -%}
@@ -32,9 +32,12 @@
       USA". This layout serves only the campaign, so the copy belongs to it.
     {%- endcomment -%}
 
-    {%- assign lp_title = 'Buy the Gallon, Get the Small One Free — Malbor Classic Line' -%}
-    {%- assign lp_description = 'A free small size with every 3.78L gallon of Hydro Coat, Deep Cleaning APC, Max Pro Shampoo and Nano Polymer Spray. Built for saltwater and sun. October 15 – November 1, 2026, while supplies last.' -%}
-    {%- assign lp_image = 'lp-bogo-hero.png' | asset_img_url: '1200x630', crop: 'center' | prepend: 'https:' -%}
+    {%- assign lp_title = 'Black Friday at Malbor — Professional Line 25% off' -%}
+    {%- assign lp_description = 'Black Friday 2026: 25% off every Professional Line 60ml ceramic coating, 35% off when you buy 5, and a free SiO2 Top Sealant with your order. Local pickup in Pompano Beach and Fort Lauderdale. While supplies last.' -%}
+    {%- assign lp_share = all_products['9h-special-edition-60ml-marine'].featured_image -%}
+    {%- if lp_share -%}
+      {%- assign lp_image = lp_share | image_url: width: 1200, height: 630, crop: 'center' | prepend: 'https:' -%}
+    {%- endif -%}
 
     <title>{{ lp_title }}</title>
     <meta name="description" content="{{ lp_description | escape }}">
@@ -44,14 +47,16 @@
     <meta property="og:url" content="{{ canonical_url }}">
     <meta property="og:title" content="{{ lp_title | escape }}">
     <meta property="og:description" content="{{ lp_description | escape }}">
-    <meta property="og:image" content="{{ lp_image }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    {%- if lp_image != blank -%}
+      <meta property="og:image" content="{{ lp_image }}">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="630">
+      <meta name="twitter:image" content="{{ lp_image }}">
+    {%- endif -%}
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ lp_title | escape }}">
     <meta name="twitter:description" content="{{ lp_description | escape }}">
-    <meta name="twitter:image" content="{{ lp_image }}">
 
     {{ content_for_header }}
 
@@ -91,7 +96,7 @@
         min-height: 100%;
         margin: 0;
         /* Matches --lp-bg so no theme colour shows through above the fold. */
-        background: #24211e;
+        background: #0b0908;
       }
 
       main {
