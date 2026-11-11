@@ -429,21 +429,29 @@
    bottom edge. See snippets/lp-blackfriday-bottle.liquid. */
 
 .lp-bottle {
+  /* Bottle box as fractions of a 3:4 photo; overridable per image. */
+  --bx: 0.345;
+  --by: 0.222;
+  --bw: 0.31;
+  --bh: 0.58;
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 310 / 773;
+  /* width : height = bw : bh × 4/3 */
+  aspect-ratio: calc(var(--bw) * 3) / calc(var(--bh) * 4);
 }
 
+/* Percent margins resolve against the box's width, so these place the
+   photo so that the bottle region fills the box exactly. */
 .lp-page .lp-bottle img {
   position: absolute;
   top: 0;
-  left: -111.3%;
-  width: 322.6%;
+  left: calc(-100% * var(--bx) / var(--bw));
+  width: calc(100% / var(--bw));
   max-width: none;
   height: auto;
   aspect-ratio: 3 / 4;
-  margin-top: -95.5%;
+  margin-top: calc(-100% * var(--by) * 4 / 3 / var(--bw));
   pointer-events: none;
 }
 
@@ -787,11 +795,16 @@
 .lp-card__stage .lp-bottle {
   position: relative;
   z-index: 1;
-  width: 30%;
+  width: 38%;
   filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.55));
 }
 
 .lp-card__stage .lp-bottle--whole { width: 80%; }
+
+@media (min-width: 760px) {
+  .lp-card__stage .lp-bottle { width: 30%; }
+  .lp-card__stage .lp-bottle--whole { width: 80%; }
+}
 
 /* The bottle stands on the middle of this ellipse. */
 .lp-card__pedestal {
@@ -973,10 +986,18 @@
   text-align: center;
 }
 
-.lp-gift__media img {
-  width: 120px;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
+.lp-gift__media {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 0 6px;
+  background: radial-gradient(ellipse 50% 55% at 50% 55%, rgba(232, 89, 12, 0.45), transparent 72%);
+}
+
+.lp-gift__media .lp-bottle {
+  width: 48%;
+  max-width: 120px;
+  filter: drop-shadow(0 12px 12px rgba(0, 0, 0, 0.55));
 }
 
 .lp-gift__name {

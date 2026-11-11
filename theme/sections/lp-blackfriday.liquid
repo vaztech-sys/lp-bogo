@@ -334,18 +334,39 @@
             assign g_product = gift_std
             assign g_ok = gift_std_ok
             assign g_label = 'Standard'
+            assign g_fx = 0.282
+            assign g_fy = 0.176
+            assign g_fw = 0.38
+            assign g_fh = 0.687
           else
             assign g_product = gift_mar
             assign g_ok = gift_mar_ok
             assign g_label = 'Marine'
+            assign g_fx = 0.282
+            assign g_fy = 0.187
+            assign g_fw = 0.35
+            assign g_fh = 0.626
           endif
         -%}
         {%- if g_product != blank -%}
           <li class="lp-gift__item{% unless g_ok %} lp-gift__item--out{% endunless %}">
             <div class="lp-gift__media">
-              {%- if g_product.featured_image -%}
-                {{ g_product.featured_image | image_url: width: 360 | image_tag: loading: 'lazy', widths: '180,360', sizes: '160px', alt: g_product.title }}
-              {%- endif -%}
+              {%- comment -%}
+                The two sealant photos frame their bottles differently from
+                the 60ml ones and from each other; measured on the store's
+                photos (fractions of the 600x800 image).
+              {%- endcomment -%}
+              {% render 'lp-blackfriday-bottle',
+                image: g_product.featured_image,
+                alt: g_product.title,
+                width: 600,
+                widths: '300,450,600',
+                sizes: '(max-width: 760px) 160px, 320px',
+                frame_x: g_fx,
+                frame_y: g_fy,
+                frame_w: g_fw,
+                frame_h: g_fh
+              %}
             </div>
             <p class="lp-gift__name">{{ g_product.title }}</p>
             <p class="lp-gift__kind">{{ g_label }}</p>

@@ -11,7 +11,12 @@
   An image override (a cut-out uploaded in the theme editor) may be framed
   differently, so it is shown whole instead: pass `trimmed: false`.
 
-  Parameters: image, alt, sizes, widths, width, loading, priority, trimmed.
+  A photo framed differently can pass its own bottle box as fractions of the
+  photo: frame_x, frame_y (top-left corner), frame_w, frame_h. The SiO2 Top
+  Sealant photos do this.
+
+  Parameters: image, alt, sizes, widths, width, loading, priority, trimmed,
+  frame_x, frame_y, frame_w, frame_h.
 {%- endcomment -%}
 {%- liquid
   assign img_width = width | default: 600
@@ -23,7 +28,10 @@
   endif
 -%}
 {%- if image != blank -%}
-  <span class="lp-bottle{% if trimmed == false %} lp-bottle--whole{% endif %}">
+  <span
+    class="lp-bottle{% if trimmed == false %} lp-bottle--whole{% endif %}"
+    {% if frame_w %}style="--bx:{{ frame_x }};--by:{{ frame_y }};--bw:{{ frame_w }};--bh:{{ frame_h }}"{% endif %}
+  >
     {{
       image
       | image_url: width: img_width
