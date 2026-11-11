@@ -1,200 +1,152 @@
-# Malbor BOGO — Shopify theme files
+# Malbor campaign landing page — Shopify theme files
 
-Native Liquid port of the React landing page in `src/LandingPage.tsx`, meant to
-be dropped into the store's **Balance** theme and served at `/pages/bogo`.
+Liquid section, snippets, layout and assets for the campaign landing page of
+the Shopify store `us8kmm-n0`, served as the homepage of
+`bogo.malborcoatings.com` (the store's primary domain). The brand site runs on
+Framer at the apex domain, so the Shopify homepage is free for campaigns.
+
+The current campaign is **Black Friday 2026**. Earlier campaigns (September
+BOGO, October Boat Show) live in git history and in the unpublished themes
+listed under [Rollback](#rollback).
+
+## The offer
+
+Professional Line 60ml bottles only. The Classic Line and the kits are out.
+
+| Rule | Value |
+|---|---|
+| Every bottle | 25% off |
+| 5 bottles or more, mixed | 35% off every bottle |
+| Free item | 1 SiO2 Top Sealant 473ml per order, standard or Marine |
+| Period | Section settings (see [Dates](#dates)); default Nov 27, 2026 |
+| Fulfilment | Local pickup only: Pompano Beach, Safe Harbor Lauderdale Marine Center |
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `sections/lp-bogo.liquid` | The whole landing page, with a theme-editor schema |
-| `templates/index.json` | Homepage — the campaign URL needs no path |
-| `templates/page.bogo.json` | Same page at /pages/bogo, kept as a fallback |
-| `layout/lp-bogo.liquid` | Minimal layout: no theme header, footer or cart drawer |
-| `snippets/lp-bogo-logo.liquid` | Malbor wordmark, inlined SVG |
-| `snippets/lp-bogo-cart-icon.liquid` | Cart glyph |
-| `assets/lp-bogo.css` | Styles (adds the responsive behaviour the prototype lacked) |
-| `assets/lp-bogo.js` | Cart wiring against the Shopify AJAX API |
-| `assets/lp-bogo-*.png` | Hero and lifestyle photography |
+| `sections/lp-blackfriday.liquid` | The page and its theme-editor schema |
+| `snippets/lp-blackfriday-card.liquid` | One bottle card (rendered once per group it belongs to) |
+| `snippets/lp-blackfriday-logo.liquid` | Malbor wordmark, inline SVG |
+| `snippets/lp-blackfriday-cart-icon.liquid` | Cart glyph |
+| `layout/lp-blackfriday.liquid` | Minimal layout: no theme header, footer or cart drawer; campaign title and share card |
+| `assets/lp-blackfriday.css` | Styles, mobile first |
+| `assets/lp-blackfriday.js` | Page state, countdown, filter, cart drawer and free-sealant sync |
+| `templates/index.json` | Homepage: the campaign link is the bare domain |
+| `templates/page.black-friday.json` | Same page at `/pages/black-friday`, for review |
+| `sections/header-group.json` | Announcement bar for the rest of the store |
 
-## What changed from the React prototype
+`docs/balance-index-backup.json` (outside `theme/`, never synced) is the
+original Balance homepage, to restore when campaigns stop using `/`.
 
-- **Prices and availability are live.** Product name, price and stock come from
-  the Shopify product object instead of the hardcoded `PRODUCTS` array, so the
-  page cannot quote a price the checkout disagrees with. A sold-out gallon
-  renders "Sold out" instead of an Add to Cart button.
-- **The cart is the real cart.** `/cart/add.js`, `/cart/change.js` and
-  `/cart.js` back the drawer. The "BOGO savings" line shows Shopify's
-  `total_discount` — the discount actually applied — rather than a number
-  computed in the browser.
-- **Add to cart works without JavaScript.** Each card is a real `/cart/add`
-  form; the script intercepts the submit when it loads.
-- **The page is responsive.** The prototype had no breakpoints at all and broke
-  below ~1200px. Layouts now collapse at 1200px, 900px and 760px.
-- **Footer policy links resolve.** They were inert `<button>` elements; they now
-  point at the store's real policy pages and disappear when a policy is unset.
-- **Nav no longer has two entries pointing to the same anchor.** The prototype's
-  "DELIVERY & PICKUP" and "HOW IT WORKS" both scrolled to the same section, so
-  the duplicate is gone.
+## Dates
 
-## Deploying
+The period is never hardcoded. In the theme editor, **Black Friday landing
+page → Period**:
 
-The files live under `theme/` so they can sit alongside the Vite app. Shopify's
-GitHub integration expects theme files at the **root** of the connected branch,
-so promoting this to a synced branch means publishing this directory as the
-root of a dedicated branch, e.g.:
+- **Offer starts / Offer ends**: `YYYY-MM-DD HH:MM`, Florida time.
+- **Florida time offset**: EST (−05:00) for November.
+- **After the offer ends**: "coming soon" without dates, or "This offer has
+  ended".
+- **Seal and ribbon date** (e.g. `NOV 27` or `NOV 27–30`) and **Period text**
+  (shown under the countdown and in the fine print wherever `[period]` appears).
+
+| Before the start (`soon`) | Between the dates (`live`) | After the end (`over` / `ended`) |
+|---|---|---|
+| Full prices, "25% off from Black Friday" | Price with 25% off, "$X each with 5+" | Full prices |
+| Countdown "Starts in" | Countdown "Ends in" | No countdown |
+| Buttons disabled: "Starts Black Friday" | Buttons active | Disabled: "Starts Black Friday" / "Offer ended" |
+
+Liquid renders the state from `'now'`; the script re-checks it every second,
+so a page Shopify served from cache still flips on time.
+
+Keep the section dates, the fine print and the three automatic discounts'
+dates the same.
+
+## Why the free item is added by the page
+
+Shopify's automatic "buy X get Y" discount prices the free item at $0 only if
+it is already in the cart. It never adds it. The September BOGO discounts were
+used once in fifteen days, because shoppers had to add the free unit by hand.
+
+So this page:
+
+- **One click, two items.** The first bottle goes in with the sealant in the
+  same `/cart/add.js` request: Marine sealant with a Marine bottle (handle
+  contains `marine`), standard otherwise. If the cart already has a sealant,
+  only the bottle goes in. The no-JS form does the same with `items[][id]` /
+  `items[][quantity]`, and leaves the sealant out when the cart already has one.
+- **Sold out.** A variant counts as in stock only if it is available *and*, when
+  Shopify tracks it, has at least one on hand (several of these products keep
+  selling at zero). Sold-out bottles show "Sold out". If the matching sealant is
+  out, the other version is used; if both are out, the page says "Free SiO2
+  while supplies last: sold out", drops the free item from the offer line and
+  the bottle sells alone. If a sealant sells out between page load and click,
+  the script falls back to the other version, then to the bottle alone.
+- **Kept in step.** After any change on the page, the cart holds exactly one
+  sealant at quantity 1 while it has a bottle, and none once the last bottle
+  is gone. A sealant in the cart with no bottle on page load is left alone
+  (it may have been bought at full price elsewhere in the store).
+- **The drawer** shows the sealant as FREE with no quantity controls, only a
+  standard/Marine switch; a progress bar "Add N more for 35% off"; and the
+  savings line from Shopify's `total_discount`.
+
+The lock applies to this page's drawer. The theme's own `/cart` page can still
+change the sealant's quantity; the free-item discount is capped at one use per
+order, so a second unit would be charged at full price.
+
+## Shopify setup
+
+Created on 2026-11-11, **not active**:
+
+| Object | Setting |
+|---|---|
+| Collection **Professional — 60 ml** (`professional-60ml`) | Automatic: product type = Professional AND title contains `60ml`. 15 products, no kits. Not published to the storefront (not needed for discounts) |
+| Automatic discount **Black Friday 2026 — Professional 60ml 25% off** | 25% on the collection, no minimum, combines with product discounts |
+| Automatic discount **Black Friday 2026 — Professional 60ml 35% off (5+)** | 35% on the collection, minimum 5 items, combines with product discounts |
+| Automatic discount **Black Friday 2026 — Free SiO2 Top Sealant 473ml** | Buy 1 from the collection, get 1 of either SiO2 Top Sealant 473ml at 100%, 1 use per order, combines with product discounts |
+
+The three were created with a one-minute window on Nov 10, so they show as
+**Expired** and have never applied. To turn them on, set their start and end
+to the campaign period (Florida time). With both percentage discounts active,
+Shopify applies only the larger one to each line; confirm that in the first
+real cart test.
+
+## Theme and pages
+
+| Theme | Role | Use |
+|---|---|---|
+| **Black Friday LP (Nov 2026)** (`189978640704`) | Unpublished | Duplicate of the Boat Show theme with this branch's files |
+| Boat Show LP (Oct 15 – Nov 1) | **Published** | Still shows the gallon offer that ended Nov 1 |
+| BOGO LP — mobile fixes | Unpublished | September page |
+
+Review: `https://bogo.malborcoatings.com/pages/black-friday?preview_theme_id=189978640704`
+(the page `black-friday` uses the `page.black-friday` template). The `/` of
+that theme already serves the Black Friday page, so publishing the theme
+switches the homepage and the announcement bar together.
+
+Files are uploaded with the Admin API's `themeFilesUpsert`, from the raw
+GitHub URL of a specific commit. The connector cannot write to the published
+theme and cannot delete theme files: the duplicate still contains the old
+`lp-bogo*` and `lp-boatshow*` files. They are not used by the Black Friday
+templates and can be deleted in the code editor.
+
+## Rollback
+
+Republish **Boat Show LP (Oct 15 – Nov 1)** or **BOGO LP — mobile fixes** in
+**Online Store → Themes**. Both still have their own homepage and files.
+
+## Copy rules (legal)
+
+No "permanent" in any form, no environmental claims, no competitor
+comparisons, no protection-duration numbers anywhere ("9H" and "10H" only as
+product names), no kit names, no delivery (local pickup only), phone
+(925) 876-9005. Check before publishing:
 
 ```sh
-git subtree split --prefix=theme -b shopify-theme
-git push -u origin shopify-theme
+grep -rniE "BOGO|Buy 1|gallon|Boat Show|FLIBS|October|delivery|permanent|months|years|lifetime|booth|visit us" \
+  --exclude=README.md theme/
 ```
 
-Then in the Shopify admin: **Online Store → Themes → Add theme → Connect from
-GitHub**, and point it at that branch.
-
-To install by hand instead, copy each file into the matching directory of a
-**duplicate** of the Balance theme — never the live one — then create a page
-with the handle `bogo` and assign it the `page.bogo` template.
-
-## The homepage
-
-`templates/index.json` renders the same section as the page template, so the
-campaign link is the bare domain rather than a `/pages/...` path. This means
-**the store's homepage is the campaign page** for as long as this theme is
-published. The Shopify storefront is not the public storefront here — the brand
-site runs on Framer at the apex domain — so the homepage is free for the
-campaign to use.
-
-To restore the Balance homepage when the campaign ends, copy
-`docs/balance-index-backup.json` (kept outside `theme/` so it never syncs as a
-theme file) over `templates/index.json`.
-
-The page is reachable at both `/` and `/pages/bogo`, which is deliberate: the
-page template is a fallback if anything goes wrong with the homepage, and it can
-be checked without touching `/`. Only advertise one of them.
-
-## Before going live
-
-- The campaign copy hardcodes **September 16–30, 2026**. Keep the "Fine Print"
-  setting, the final call to action, and the automatic discounts' active dates
-  in sync — all three name the window.
-- The campaign domain must be the store's **primary** domain. Shopify redirects
-  non-primary domains to the primary one, so a subdomain that is merely
-  connected will bounce visitors to the `.myshopify.com` address.
-- The offer is three separate automatic BOGO discounts, one per gallon, each
-  capped at one use per order. There is deliberately no cross-product cap: stock
-  is the control on exposure, not the fine print.
-- `max-pro-shampoo-3-78l-copy` is the live handle of the Max Pro Shampoo 3.78L
-  product. Renaming the handle would break the product block in
-  `templates/page.bogo.json`.
-
----
-
-# Boat Show campaign (October 15 – November 1, 2026)
-
-The BOGO page above ended on September 30. The Boat Show page sits beside it in
-separate files, so uploading them changes nothing on the live storefront until
-the homepage is switched on purpose.
-
-**The offer:** buy a 3.78L gallon and get the small size of the same product
-free. There is no code; each pair has its own automatic Buy X Get Y discount.
-
-| Gallon | Free size |
-|---|---|
-| `hydro-coat-3-78l` | `hydro-coat-473ml-1` |
-| `deep-cleaning-apc-3-78l` | `deep-cleaning-apc-473ml` |
-| `max-pro-shampoo-3-78l-copy` | `max-pro-shampoo-946ml` |
-| `nano-polymer-spray-3-78l` | `nano-polymer-spray-473ml` |
-| `nano-polymer-spray-3-78l-marine` | `nano-polymer-spray-473ml-marine` |
-
-## Files
-
-| File | Purpose |
-|---|---|
-| `sections/lp-boatshow.liquid` | The page. Each product block pairs a gallon with its free size |
-| `templates/page.boat-show.json` | The page at `/pages/boat-show`, for review |
-| `layout/lp-boatshow.liquid` | Minimal layout, with the campaign title and share card |
-| `assets/lp-boatshow.css` | `lp-bogo.css` with the root class renamed to `.lp-page`, plus free-size styles |
-| `assets/lp-boatshow.js` | Cart wiring: adds both items and keeps the free size in step with its gallon |
-
-The page reuses `snippets/lp-bogo-logo.liquid`, `snippets/lp-bogo-cart-icon.liquid`
-and the `lp-bogo-*.png` photography.
-
-## Why the BOGO discount was never used, and what this page does about it
-
-Shopify's automatic Buy X Get Y discount prices the free item at $0 only when
-it is already in the cart. It never adds it. The BOGO page added one unit per
-click, so a shopper who did not add a second gallon by hand paid full price
-and got nothing.
-
-In fifteen days the three BOGO discounts were used in exactly one order
-(#1124, Sept 29): a real customer who added two gallons of Max Shield and two
-of Max Pro Shampoo by hand and got $244 off. The offer worked; almost nobody
-found the one extra step it needed.
-
-This page:
-
-- **Adds both items in one click:** `/cart/add.js` with `items: [gallon, free size]`.
-  The no-JS fallback posts the same pair through `items[][id]` form fields.
-- **Keeps the pair in step:** after every add or quantity change on this page,
-  the script sets each free size to its gallon's quantity. Removing a gallon
-  removes its free size. On page load it does not touch the cart, so a small
-  size bought separately is left alone.
-- **Shows the free size as FREE** in the drawer, with no quantity controls of
-  its own. The savings line still comes from Shopify's `total_discount`.
-- **Handles a sold-out free size.** If the free size is out of stock, the card
-  says so, the "+ FREE" flag is withheld, the pair is left out of the sync map,
-  and Add to Cart adds the gallon at its regular price.
-- **Adds the gallon alone, then raises the free size to match.** `/cart/add.js`
-  is atomic, so posting the pair meant a free size that sold out mid-campaign
-  failed the whole request and the shopper could not buy the gallon either.
-  The no-JS form still posts both, having no second step available to it.
-
-## Free-size stock
-
-The free sizes are the constraint, and two of them deny overselling, so the
-offer stops working for that product the moment stock runs out. Checked
-October 6:
-
-| Free size | On hand | When out of stock |
-|---|---|---|
-| `hydro-coat-473ml-1` | 1 | **deny** — offer dies after one order |
-| `deep-cleaning-apc-473ml` | 5 | **deny** — offer dies after five |
-| `max-pro-shampoo-946ml` | 53 | continue |
-| `nano-polymer-spray-473ml` | 5 | continue |
-| `nano-polymer-spray-473ml-marine` | 6 | continue |
-
-`nano-polymer-spray-3-78l-marine`, the gallon, is at 0 on hand and set to
-continue selling, so that card sells an item with none in stock.
-
-## Discounts
-
-Create one automatic **Buy X Get Y** discount per row of the table above:
-
-- customer buys 1 of the gallon and gets 1 of the free size at 100% off;
-- no limit on uses per order;
-- active October 15, 2026 00:00 to November 1, 2026 23:59, Florida time.
-
-Turn off the three BOGO discounts first. Keep the fine print, the final call
-to action and the discounts' dates in sync — all three name the window.
-
-## Going live
-
-1. Upload the files on this branch to the unpublished copy of the live theme.
-   The Admin API connector cannot write to the published theme.
-2. Review the page through that theme's preview link. Optionally create a page
-   with the handle `boat-show` and the `page.boat-show` template, for a
-   fallback URL.
-3. Run one real cart test per product: gallon and free size in the cart, the
-   free size at $0 at checkout, and local pickup offered.
-4. On this branch `templates/index.json` already serves the Boat Show page,
-   and `sections/header-group.json` announces the new offer. In the store they
-   live in the unpublished theme **"Boat Show LP (Oct 15 – Nov 1)"**, a copy of
-   the live theme. Publishing that theme on October 15 switches both in one
-   step. To go back, republish "BOGO LP — mobile fixes".
-
-   The announcement bar does **not** appear on the landing page itself:
-   `layout/lp-boatshow.liquid` is a minimal layout and never calls
-   `{% sections 'header-group' %}`. It reaches the rest of the store — product
-   pages, cart, policies — which is where a visitor would not otherwise hear
-   about the offer. The landing page carries the dates in its own badge.
+Bottle descriptions come from the block's "Short description", never from the
+product description, which may contain duration claims.
