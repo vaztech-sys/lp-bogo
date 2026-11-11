@@ -195,6 +195,9 @@ const BAR = `
   html = html.replace(/<link rel="canonical"[^>]*>/, "");
   html = html.replace("</body>", () => BAR + "\n</body>");
   html = html.replace("<title>", "<title>[REVIEW] ");
+  // Campaign renders: served from Shopify Files, where they are uploaded under
+  // the same names (the harness serves them from media/ locally).
+  html = html.replace(/(["\s])\/media\//g, "$1https://cdn.shopify.com/s/files/1/0929/1828/4608/files/");
 
   if (!html.includes("lp-review") || html.includes("/assets/lp-blackfriday")) throw new Error("inlining failed");
   fs.writeFileSync(out, html);
