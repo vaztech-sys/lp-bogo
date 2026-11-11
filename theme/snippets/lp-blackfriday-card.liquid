@@ -1,0 +1,133 @@
+{%- comment -%}
+  One Professional Line bottle on the Black Friday page.
+
+  Parameters: block, state ('soon' | 'live' | 'over' | 'ended'), the two
+  sealant variants with their *_ok stock flags, cart_has_gift, and the two
+  disabled-button labels.
+
+  The card can appear in more than one group (Glass Coating is in Boat and in
+  Interior), so it carries no id of its own.
+{%- endcomment -%}
+{%- liquid
+  assign card_product = block.settings.product
+
+  assign card_variant = card_product.selected_or_first_available_variant
+  if card_variant == blank
+    assign card_variant = card_product.variants.first
+  endif
+
+  # Sold out = Shopify says unavailable, or it tracks stock and none is on
+  # hand. Several bottles keep selling at zero; the page should not.
+  assign in_stock = false
+  if card_variant != blank and card_variant.available
+    assign in_stock = true
+    if card_variant.inventory_management == 'shopify' and card_variant.inventory_quantity < 1
+      assign in_stock = false
+    endif
+  endif
+
+  assign is_marine = false
+  if card_product.handle contains 'marine'
+    assign is_marine = true
+  endif
+
+  # Which sealant this bottle brings along: the matching version if it is in
+  # stock, the other one if not, none if both are out.
+  assign gift_id = blank
+  assign gift_alt_id = blank
+  if is_marine
+    if gift_mar_ok
+      assign gift_id = gift_mar_variant.id
+      if gift_std_ok
+        assign gift_alt_id = gift_std_variant.id
+      endif
+    elsif gift_std_ok
+      assign gift_id = gift_std_variant.id
+    endif
+  else
+    if gift_std_ok
+      assign gift_id = gift_std_variant.id
+      if gift_mar_ok
+        assign gift_alt_id = gift_mar_variant.id
+      endif
+    elsif gift_mar_ok
+      assign gift_id = gift_mar_variant.id
+    endif
+  endif
+
+  assign price = card_variant.price
+  assign price_base = price | times: 75 | divided_by: 100
+  assign price_bulk = price | times: 65 | divided_by: 100
+
+  assign title = block.settings.title | default: card_product.title
+-%}
+{%- if card_product != blank and card_variant != blank -%}
+<article class="lp-card{% unless in_stock %} lp-card--out{% endunless %}" {{ block.shopify_attributes }}>
+  <div class="lp-card__media">
+    {%- if is_marine -%}<span class="lp-card__flag">MARINE</span>{%- endif -%}
+    {%- if block.settings.image -%}
+      {{ block.settings.image | image_url: width: 480 | image_tag: loading: 'lazy', widths: '240,360,480', sizes: '(max-width: 760px) 45vw, 240px', alt: title }}
+    {%- elsif card_product.featured_image -%}
+      {{ card_product.featured_image | image_url: width: 480 | image_tag: loading: 'lazy', widths: '240,360,480', sizes: '(max-width: 760px) 45vw, 240px', alt: title }}
+    {%- endif -%}
+  </div>
+
+  <div class="lp-card__body">
+    <h4 class="lp-card__title">{{ title }}</h4>
+    {%- if block.settings.subtitle != blank -%}
+      <p class="lp-card__subtitle">{{ block.settings.subtitle }}</p>
+    {%- endif -%}
+
+    <div class="lp-card__prices">
+      {%- comment -%} Before the start: full price, the offer only announced. {%- endcomment -%}
+      <p class="lp-price" data-lp-hide-when="live">
+        <strong>{{ price | money }}</strong>
+      </p>
+      <p class="lp-price lp-price--deal" data-lp-only="live">
+        <s>{{ price | money }}</s>
+        <strong>{{ price_base | money }}</strong>
+      </p>
+      <p class="lp-price__note" data-lp-only="live">{{ price_bulk | money }} each with 5+</p>
+      <p class="lp-price__note" data-lp-only="soon">25% off from Black Friday</p>
+    </div>
+
+    {%- if in_stock -%}
+      {%- comment -%}
+        Without JavaScript the form posts the bottle and its free sealant in one
+        request (items[]), unless the cart already holds a sealant. With
+        JavaScript, lp-blackfriday.js intercepts the submit and does the same
+        against /cart/add.js, with a fallback when a sealant has just sold out.
+      {%- endcomment -%}
+      <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="lp-card__form">
+        <input type="hidden" name="items[][id]" value="{{ card_variant.id }}">
+        <input type="hidden" name="items[][quantity]" value="1">
+        {%- if state == 'live' and gift_id != blank and cart_has_gift == false -%}
+          <input type="hidden" name="items[][id]" value="{{ gift_id }}">
+          <input type="hidden" name="items[][quantity]" value="1">
+        {%- endif -%}
+        <button
+          type="submit"
+          class="lp-btn lp-btn--block"
+          data-lp-add="{{ card_variant.id }}"
+          {% if gift_id != blank %}data-lp-gift="{{ gift_id }}"{% endif %}
+          {% if gift_alt_id != blank %}data-lp-gift-alt="{{ gift_alt_id }}"{% endif %}
+          data-lp-add-label="{{ title | escape }}"
+          {% unless state == 'live' %}disabled{% endunless %}
+        >
+          <span data-lp-icon hidden></span>
+          <span data-lp-label>
+            {%- case state -%}
+              {%- when 'live' -%}Add to cart
+              {%- when 'soon' -%}{{ soon_label }}
+              {%- when 'over' -%}{{ soon_label }}
+              {%- else -%}{{ ended_label }}
+            {%- endcase -%}
+          </span>
+        </button>
+      </form>
+    {%- else -%}
+      <p class="lp-card__soldout">Sold out</p>
+    {%- endif -%}
+  </div>
+</article>
+{%- endif -%}

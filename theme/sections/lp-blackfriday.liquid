@@ -1,17 +1,29 @@
 {%- comment -%}
-  Malbor Boat Show campaign landing page: buy a 3.78L gallon, get the small
-  size of the same product free.
+  Malbor Black Friday 2026 landing page: the Professional Line 60ml bottles at
+  25% off, 35% off every bottle from five up, and one free SiO2 Top Sealant
+  473ml per order.
 
-  Built from the BOGO page (sections/lp-bogo.liquid). What changed:
+  What carries over from the earlier campaign pages, and why:
 
-  1. Each product block pairs a gallon with its free size. The card adds BOTH
-     to the cart in one request, with or without JavaScript. The BOGO page added
-     a single unit and relied on the shopper adding the second one; Shopify's
-     automatic Buy X Get Y discount never adds the free item by itself, so the
-     BOGO discount was used zero times.
-  2. The drawer keeps each free size locked to its gallon's quantity and shows
-     it as FREE. Prices and savings still come from /cart.js, so the page shows
-     the discount Shopify actually applied.
+  1. The free item goes into the cart with the first bottle, in the same
+     /cart/add.js call, with or without JavaScript. Shopify's automatic
+     "buy X get Y" discount never adds the free item by itself; the
+     September discount was used zero times because shoppers had to add the
+     free item by hand.
+  2. Prices and stock are live. Nothing on this page hardcodes a price, a
+     quantity or a date.
+
+  The page has two states, picked from the dates in the section settings
+  (Florida time):
+
+  - "soon":  before the start date. Full prices, the offer announced, a
+             countdown to the start and Add to cart disabled.
+  - "live":  between the dates. Discounted prices previewed, buttons active,
+             a countdown to the end.
+
+  After the end date it shows "soon" without dates, or "ended", per the
+  `after_end` setting. The state is rendered here and re-checked in the
+  browser by lp-blackfriday.js, so a cached page still flips on time.
 {%- endcomment -%}
 
 {{ 'lp-blackfriday.css' | asset_url | stylesheet_tag }}
@@ -20,19 +32,96 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
   rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;1,800;1,900&family=Poppins:wght@400;500;600&display=swap"
 >
 
 {%- liquid
-  assign trust_items = section.settings.trust_items | strip | newline_to_br | split: '<br />'
-  assign terms = section.settings.terms | strip | newline_to_br | split: '<br />'
+  # ── Period ──────────────────────────────────────────────────────────────
+  assign tz = section.settings.tz_offset | default: '-0500'
+  assign now_ts = 'now' | date: '%s' | plus: 0
+
+  assign start_ts = 0
+  if section.settings.start_at != blank
+    assign start_ts = section.settings.start_at | append: ' ' | append: tz | date: '%s' | plus: 0
+  endif
+  assign end_ts = 0
+  if section.settings.end_at != blank
+    assign end_ts = section.settings.end_at | append: ' ' | append: tz | date: '%s' | plus: 0
+  endif
+  # A date that did not parse comes back as text and turns into a small
+  # number; treat anything before 2001 as "not set".
+  if start_ts < 1000000000
+    assign start_ts = 0
+  endif
+  if end_ts < 1000000000
+    assign end_ts = 0
+  endif
+
+  assign state = 'soon'
+  if start_ts > 0 and now_ts >= start_ts
+    assign state = 'live'
+  endif
+  if end_ts > 0 and now_ts >= end_ts
+    if section.settings.after_end == 'ended'
+      assign state = 'ended'
+    else
+      assign state = 'over'
+    endif
+  endif
+
+  assign period_short = section.settings.period_short
+  assign period_long = section.settings.period_long
+
+  # ── Free SiO2 Top Sealant ───────────────────────────────────────────────
+  # A variant counts as in stock only if Shopify says it is available AND,
+  # when Shopify tracks it, there is at least one on hand. Several of these
+  # products are set to keep selling at zero, which would otherwise let the
+  # page promise something that is not on the shelf.
+  assign gift_std = section.settings.gift_standard
+  assign gift_std_variant = gift_std.selected_or_first_available_variant | default: gift_std.variants.first
+  assign gift_std_ok = false
+  if gift_std_variant != blank and gift_std_variant.available
+    assign gift_std_ok = true
+    if gift_std_variant.inventory_management == 'shopify' and gift_std_variant.inventory_quantity < 1
+      assign gift_std_ok = false
+    endif
+  endif
+
+  assign gift_mar = section.settings.gift_marine
+  assign gift_mar_variant = gift_mar.selected_or_first_available_variant | default: gift_mar.variants.first
+  assign gift_mar_ok = false
+  if gift_mar_variant != blank and gift_mar_variant.available
+    assign gift_mar_ok = true
+    if gift_mar_variant.inventory_management == 'shopify' and gift_mar_variant.inventory_quantity < 1
+      assign gift_mar_ok = false
+    endif
+  endif
+
+  assign gift_any_ok = false
+  if gift_std_ok or gift_mar_ok
+    assign gift_any_ok = true
+  endif
+
+  # Does the cart already hold a free sealant? Then the no-JS form adds the
+  # bottle alone, so the order never ends up with two.
+  assign cart_has_gift = false
+  for item in cart.items
+    if item.variant_id == gift_std_variant.id or item.variant_id == gift_mar_variant.id
+      assign cart_has_gift = true
+    endif
+  endfor
+
   assign product_blocks = section.blocks | where: 'type', 'product'
   assign step_blocks = section.blocks | where: 'type', 'step'
+  assign terms = section.settings.terms | replace: '[period]', period_long | strip | newline_to_br | split: '<br />'
+
+  assign gift_price = gift_std_variant.price | default: gift_mar_variant.price
 -%}
 
 <div
   class="lp-page"
   data-lp-page
+  data-lp-state="{{ state }}"
   data-cart-open="false"
   data-money-format="{{ shop.money_format | strip_html | escape }}"
 >
@@ -44,226 +133,112 @@
       {% render 'lp-blackfriday-logo', url: '#lp-products' %}
 
       <nav class="lp-nav" aria-label="Landing page sections">
-        <a href="#lp-products">PRODUCTS</a>
+        <a href="#lp-products">SHOP</a>
         <a href="#lp-how-it-works">HOW IT WORKS</a>
-        <a href="#lp-contact">CONTACT</a>
+        <a href="#lp-pickup">PICKUP</a>
       </nav>
 
       <div class="lp-header__actions">
-        <button
-          type="button"
-          class="lp-cart-toggle"
-          data-lp-open
-          aria-label="Open cart"
-        >
+        <button type="button" class="lp-cart-toggle" data-lp-open aria-label="Open cart">
           {% render 'lp-blackfriday-cart-icon' %}
-          <span
-            class="lp-cart-toggle__count"
-            data-lp-count
-            {% if cart.item_count == 0 %}hidden{% endif %}
-          >{{ cart.item_count }}</span>
+          <span class="lp-cart-toggle__count" data-lp-count {% if cart.item_count == 0 %}hidden{% endif %}>
+            {{- cart.item_count -}}
+          </span>
         </button>
-
-        <a class="lp-btn" href="#lp-products">{{ section.settings.header_cta }}</a>
+        <a class="lp-btn lp-btn--sm" href="#lp-products">{{ section.settings.header_cta }}</a>
       </div>
     </div>
   </header>
 
   {%- comment -%} ── Hero ───────────────────────────────────────────────── {%- endcomment -%}
-  <section class="lp-hero">
-    <div class="lp-hero__copy">
-      {%- if section.settings.badge_text != blank -%}
-        <p class="lp-badge"><span class="lp-badge__dot"></span>{{ section.settings.badge_text }}</p>
-      {%- endif -%}
+  <section class="lp-hero" aria-labelledby="lp-hero-title">
+    <div class="lp-hero__glow" aria-hidden="true"></div>
 
-      <h1 class="lp-display">{{ section.settings.heading }}</h1>
-      <p class="lp-hero__sub">{{ section.settings.subheading }}</p>
-      <p class="lp-body">{{ section.settings.intro }}</p>
+    <h1 class="lp-hero__title" id="lp-hero-title">
+      <span class="lp-hero__black">BLACK</span>
+      <span class="lp-hero__friday">FRIDAY</span>
+    </h1>
 
-      <div class="lp-hero__cta">
-        <a class="lp-btn lp-btn--wide" href="#lp-products">{{ section.settings.hero_cta }}</a>
-        <p class="lp-hero__note">{{ section.settings.hero_note }}</p>
-      </div>
-    </div>
-
-    <div class="lp-hero__media">
-      {%- if section.settings.hero_image -%}
-        {{
-          section.settings.hero_image
-          | image_url: width: 1200
-          | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '(max-width: 900px) 100vw, 50vw', widths: '600,900,1200,1600', alt: section.settings.hero_image.alt
-        }}
-      {%- else -%}
-        <img
-          src="{{ 'lp-bogo-hero.png' | asset_img_url: '1200x' }}"
-          srcset="{{ 'lp-bogo-hero.png' | asset_img_url: '600x' }} 600w, {{ 'lp-bogo-hero.png' | asset_img_url: '1200x' }} 1200w"
-          sizes="(max-width: 900px) 100vw, 50vw"
-          alt="Malbor product in use"
-          width="1152"
-          height="896"
-          fetchpriority="high"
-        >
-      {%- endif -%}
-    </div>
-  </section>
-
-  {%- comment -%} ── Trust bar ──────────────────────────────────────────── {%- endcomment -%}
-  {%- if trust_items.size > 0 -%}
-    <div class="lp-trust">
-      {%- for item in trust_items -%}
-        {%- assign label = item | strip_html | strip -%}
-        {%- if label != blank -%}<p>{{ label }}</p>{%- endif -%}
-      {%- endfor -%}
-    </div>
-  {%- endif -%}
-
-  {%- comment -%} ── Products ───────────────────────────────────────────── {%- endcomment -%}
-  <section class="lp-section" id="lp-products">
-    <div class="lp-section__head">
-      <p class="lp-eyebrow">{{ section.settings.products_eyebrow }}</p>
-      <h2 class="lp-h2">{{ section.settings.products_heading }}</h2>
-      <p class="lp-body">{{ section.settings.products_body }}</p>
-    </div>
-
-    <div class="lp-products">
-      {%- for block in product_blocks -%}
-        {%- comment -%}
-          `product` and `variant` are global Liquid objects in Shopify themes.
-          Assigning to those names inside the loop shadowed them and left
-          `variant.available` empty, so every card rendered "Sold out" while the
-          products were in stock. Prefixed names avoid the collision, and the
-          variant falls back through every way of naming one.
-        {%- endcomment -%}
-        {%- liquid
-          assign card_product = block.settings.product
-          assign card_variant = card_product.selected_or_first_available_variant
-          if card_variant == blank
-            assign card_variant = card_product.first_available_variant
-          endif
-          if card_variant == blank
-            assign card_variant = card_product.variants.first
-          endif
-
-          assign gift_product = block.settings.gift
-          assign gift_variant = gift_product.selected_or_first_available_variant
-          if gift_variant == blank
-            assign gift_variant = gift_product.first_available_variant
-          endif
-          if gift_variant == blank
-            assign gift_variant = gift_product.variants.first
-          endif
-
-          assign gift_ready = false
-          if gift_product != blank and gift_variant != blank and gift_variant.available
-            assign gift_ready = true
-          endif
-        -%}
-        {%- if card_product == blank or card_variant == blank -%}
-          {%- continue -%}
-        {%- endif -%}
-
-        <div class="lp-card" {{ block.shopify_attributes }}>
-          <div class="lp-card__media">
-            {%- comment -%}
-              Gated on gift_ready, not on the product: a sold-out free size
-              would otherwise promise "+ FREE 473ML" in the corner of the same
-              card whose body says the free size is sold out.
-            {%- endcomment -%}
-            {%- if gift_ready -%}
-              <span class="lp-card__flag">+ FREE {{ block.settings.gift_size | default: 'SMALL SIZE' }}</span>
+    <div class="lp-hero__stage">
+      <div class="lp-stage" aria-hidden="true">
+        <div class="lp-stage__light"></div>
+        <div class="lp-stage__items">
+          {%- assign hero_products = '' -%}
+          {%- for i in (1..3) -%}
+            {%- assign key = 'hero_product_' | append: i -%}
+            {%- assign hero_product = section.settings[key] -%}
+            {%- if hero_product != blank and hero_product.featured_image -%}
+              <div class="lp-stage__item lp-stage__item--{{ i }}">
+                {{
+                  hero_product.featured_image
+                  | image_url: width: 520
+                  | image_tag:
+                    loading: 'eager',
+                    fetchpriority: 'high',
+                    widths: '260,390,520',
+                    sizes: '(max-width: 760px) 34vw, 220px',
+                    alt: ''
+                }}
+              </div>
             {%- endif -%}
-            {%- if block.settings.image -%}
-              {{ block.settings.image | image_url: width: 600 | image_tag: loading: 'lazy', alt: card_product.title, widths: '300,600' }}
-            {%- elsif card_product.featured_image -%}
-              {{ card_product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: card_product.title, widths: '300,600' }}
-            {%- endif -%}
-          </div>
-
-          <div class="lp-card__body">
-            <div>
-              <p class="lp-card__title">{{ block.settings.title | default: card_product.title }}</p>
-              <p class="lp-card__subtitle">{{ block.settings.subtitle }}</p>
-            </div>
-
-            <p class="lp-card__desc">
-              {{ block.settings.description | default: card_product.description | strip_html | truncatewords: 60 }}
-            </p>
-
-            {%- if gift_product != blank -%}
-              {%- if gift_ready -%}
-                <p class="lp-card__gift">
-                  <span class="lp-card__gift-label">Free with this gallon</span>
-                  <span>{{ gift_product.title }} <s>{{ gift_variant.price | money_without_trailing_zeros }}</s></span>
-                </p>
-              {%- else -%}
-                <p class="lp-card__gift lp-card__gift--out">
-                  <span class="lp-card__gift-label">Free size sold out</span>
-                  <span>The gallon is available at its regular price. The free {{ block.settings.gift_size | default: 'size' }} is being restocked.</span>
-                </p>
-              {%- endif -%}
-            {%- endif -%}
-
-            <div class="lp-card__foot">
-              <p class="lp-card__price">{{ card_product.price | money_without_trailing_zeros }}</p>
-
-              {%- if card_product.available -%}
-                {%- comment -%}
-                  items[] posts add both lines in one request, so the free size
-                  lands in the cart even when the script never loads.
-                {%- endcomment -%}
-                <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="items[][id]" value="{{ card_variant.id }}">
-                  <input type="hidden" name="items[][quantity]" value="1">
-                  {%- if gift_ready -%}
-                    <input type="hidden" name="items[][id]" value="{{ gift_variant.id }}">
-                    <input type="hidden" name="items[][quantity]" value="1">
-                  {%- endif -%}
-                  <button
-                    type="submit"
-                    class="lp-btn"
-                    data-lp-add="{{ card_variant.id }}"
-                    {% if gift_ready %}data-lp-gift="{{ gift_variant.id }}"{% endif %}
-                    data-lp-add-label="{{ card_product.title | escape }}"
-                  >
-                    <span data-lp-icon hidden></span>
-                    <span data-lp-label>Add to Cart</span>
-                  </button>
-                </form>
-              {%- else -%}
-                <p class="lp-card__soldout">Sold out</p>
-              {%- endif -%}
-            </div>
-          </div>
+          {%- endfor -%}
         </div>
-      {%- endfor -%}
-    </div>
-  </section>
+        <div class="lp-stage__pedestal"></div>
+      </div>
 
-  {%- comment -%} ── Crossover proof ────────────────────────────────────── {%- endcomment -%}
-  <section class="lp-split">
-    <div class="lp-figure lp-figure--tall">
-      {%- if section.settings.crossover_image -%}
-        {{ section.settings.crossover_image | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(max-width: 900px) 100vw, 50vw', widths: '600,900,1200' }}
-      {%- else -%}
-        <img
-          src="{{ 'lp-bogo-crossover.png' | asset_img_url: '1200x' }}"
-          alt="Malbor in use on a marine surface"
-          loading="lazy"
-          width="1248"
-          height="832"
-        >
+      {%- if period_short != blank -%}
+        <p class="lp-seal" data-lp-hide-when="over">
+          <span>{{ period_short | newline_to_br }}</span>
+        </p>
       {%- endif -%}
     </div>
 
-    <div class="lp-split__col">
-      <p class="lp-eyebrow">{{ section.settings.crossover_eyebrow }}</p>
-      <h2 class="lp-h2">{{ section.settings.crossover_heading }}</h2>
-      <p class="lp-body" style="color:var(--lp-text-soft)">{{ section.settings.crossover_body }}</p>
-      <p class="lp-body" style="color:var(--lp-text-soft);font-size:14px;line-height:1.6">
-        {{ section.settings.crossover_body_2 }}
+    <div class="lp-hero__copy">
+      <p class="lp-hero__offer">
+        {{ section.settings.offer_line }}
+        {%- if gift_any_ok %} <span class="lp-hero__offer-gift">· {{ section.settings.offer_gift }}</span>{% endif -%}
       </p>
+
+      {%- unless gift_any_ok -%}
+        <p class="lp-notice">{{ section.settings.gift_soldout_text }}</p>
+      {%- endunless -%}
+
+      <p class="lp-ended" data-lp-only="ended">{{ section.settings.ended_text }}</p>
+
+      <div
+        class="lp-countdown"
+        data-lp-countdown
+        data-lp-hide-when="over ended"
+        {% if start_ts == 0 %}hidden{% endif %}
+      >
+        <p class="lp-countdown__label">
+          <span data-lp-only="soon">{{ section.settings.countdown_soon }}</span>
+          <span data-lp-only="live">{{ section.settings.countdown_live }}</span>
+        </p>
+        <p class="lp-countdown__clock" aria-hidden="true">
+          <span><b data-lp-cd="d">--</b><small>days</small></span>
+          <span><b data-lp-cd="h">--</b><small>hrs</small></span>
+          <span><b data-lp-cd="m">--</b><small>min</small></span>
+          <span><b data-lp-cd="s">--</b><small>sec</small></span>
+        </p>
+        <p class="lp-countdown__when" data-lp-hide-when="over ended">{{ period_long }}</p>
+      </div>
+
+      <a class="lp-btn lp-btn--wide" href="#lp-products">{{ section.settings.hero_cta }}</a>
     </div>
   </section>
+
+  {%- comment -%} ── Ribbon ─────────────────────────────────────────────── {%- endcomment -%}
+  <div class="lp-ribbon" aria-hidden="true">
+    <p>
+      {%- for i in (1..8) -%}
+        <span>BLACK FRIDAY</span><span class="lp-ribbon__star">✦</span>
+        {%- if period_short != blank -%}
+          <span data-lp-hide-when="over ended">{{ period_short | replace: '<br>', ' ' | strip_newlines }}</span><span class="lp-ribbon__star" data-lp-hide-when="over ended">✦</span>
+        {%- endif -%}
+      {%- endfor -%}
+    </p>
+  </div>
 
   {%- comment -%} ── How it works ───────────────────────────────────────── {%- endcomment -%}
   <section class="lp-section" id="lp-how-it-works">
@@ -272,124 +247,196 @@
       <h2 class="lp-h2">{{ section.settings.steps_heading }}</h2>
     </div>
 
-    <div class="lp-steps">
+    <ol class="lp-steps">
       {%- for block in step_blocks -%}
-        <div class="lp-step" {{ block.shopify_attributes }}>
-          <span class="lp-step__tag">{{ block.settings.tag }}</span>
+        <li class="lp-step" {{ block.shopify_attributes }}>
+          <span class="lp-step__num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
           <p class="lp-step__title">{{ block.settings.title }}</p>
-          <p class="lp-step__body">{{ block.settings.body }}</p>
+          {%- if block.settings.body != blank -%}<p class="lp-step__body">{{ block.settings.body }}</p>{%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ol>
+  </section>
+
+  {%- comment -%} ── Products ───────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-section lp-section--products" id="lp-products">
+    <div class="lp-section__head">
+      <p class="lp-eyebrow">{{ section.settings.products_eyebrow }}</p>
+      <h2 class="lp-h2">{{ section.settings.products_heading }}</h2>
+      <p class="lp-body">{{ section.settings.products_body }}</p>
+    </div>
+
+    <nav class="lp-filter" aria-label="Filter products" data-lp-filters>
+      <a href="#lp-products" class="lp-filter__btn" data-lp-filter="all" aria-current="true">All</a>
+      <a href="#lp-group-boat" class="lp-filter__btn" data-lp-filter="boat">Boat</a>
+      <a href="#lp-group-car" class="lp-filter__btn" data-lp-filter="car">Car</a>
+      <a href="#lp-group-interior" class="lp-filter__btn" data-lp-filter="interior">Interior</a>
+    </nav>
+
+    <div class="lp-groups" data-lp-groups data-lp-active="all">
+      {%- assign groups = 'boat,car,interior' | split: ',' -%}
+      {%- for group in groups -%}
+        {%- liquid
+          case group
+            when 'boat'
+              assign group_title = section.settings.group_boat_title
+              assign group_body = section.settings.group_boat_body
+              assign group_key = 'in_boat'
+            when 'car'
+              assign group_title = section.settings.group_car_title
+              assign group_body = section.settings.group_car_body
+              assign group_key = 'in_car'
+            else
+              assign group_title = section.settings.group_interior_title
+              assign group_body = section.settings.group_interior_body
+              assign group_key = 'in_interior'
+          endcase
+        -%}
+        <div class="lp-group" id="lp-group-{{ group }}" data-lp-group="{{ group }}">
+          <div class="lp-group__head">
+            <h3 class="lp-h3">{{ group_title }}</h3>
+            {%- if group_body != blank -%}<p class="lp-body">{{ group_body }}</p>{%- endif -%}
+          </div>
+
+          <div class="lp-products">
+            {%- for block in product_blocks -%}
+              {%- if block.settings[group_key] -%}
+                {% render 'lp-blackfriday-card',
+                  block: block,
+                  state: state,
+                  gift_std_variant: gift_std_variant,
+                  gift_std_ok: gift_std_ok,
+                  gift_mar_variant: gift_mar_variant,
+                  gift_mar_ok: gift_mar_ok,
+                  cart_has_gift: cart_has_gift,
+                  soon_label: section.settings.soon_button,
+                  ended_label: section.settings.ended_button
+                %}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
         </div>
       {%- endfor -%}
     </div>
   </section>
 
-  {%- comment -%} ── Fine print ─────────────────────────────────────────── {%- endcomment -%}
-  <section class="lp-split">
-    <div class="lp-split__col" style="gap:32px">
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <p class="lp-eyebrow">{{ section.settings.terms_eyebrow }}</p>
-        <h2 class="lp-h2">{{ section.settings.terms_heading }}</h2>
-      </div>
-
-      <ul class="lp-terms">
-        {%- for term in terms -%}
-          {%- assign line = term | strip_html | strip -%}
-          {%- if line != blank -%}<li>{{ line }}</li>{%- endif -%}
-        {%- endfor -%}
-      </ul>
+  {%- comment -%} ── Free sealant ───────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-gift" id="lp-gift" aria-labelledby="lp-gift-title">
+    <div class="lp-gift__copy">
+      <p class="lp-eyebrow">{{ section.settings.gift_eyebrow }}</p>
+      <h2 class="lp-h2" id="lp-gift-title">{{ section.settings.gift_heading }}</h2>
+      {%- if gift_any_ok -%}
+        <p class="lp-gift__tag">{{ section.settings.gift_tag }}</p>
+        <p class="lp-body">{{ section.settings.gift_body }}</p>
+      {%- else -%}
+        <p class="lp-notice">{{ section.settings.gift_soldout_text }}</p>
+      {%- endif -%}
     </div>
 
-    <div class="lp-figure lp-figure--short">
-      {%- if section.settings.terms_image -%}
-        {{ section.settings.terms_image | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(max-width: 900px) 100vw, 50vw', widths: '600,900,1200' }}
-      {%- else -%}
-        <img
-          src="{{ 'lp-boatshow-showroom.jpg' | asset_img_url: '1200x' }}"
-          alt="Malbor gallons on display at the shop counter"
-          loading="lazy"
-          width="1540"
-          height="1032"
-        >
-      {%- endif -%}
+    <ul class="lp-gift__items">
+      {%- for i in (1..2) -%}
+        {%- liquid
+          if i == 1
+            assign g_product = gift_std
+            assign g_ok = gift_std_ok
+            assign g_label = 'Standard'
+          else
+            assign g_product = gift_mar
+            assign g_ok = gift_mar_ok
+            assign g_label = 'Marine'
+          endif
+        -%}
+        {%- if g_product != blank -%}
+          <li class="lp-gift__item{% unless g_ok %} lp-gift__item--out{% endunless %}">
+            <div class="lp-gift__media">
+              {%- if g_product.featured_image -%}
+                {{ g_product.featured_image | image_url: width: 360 | image_tag: loading: 'lazy', widths: '180,360', sizes: '160px', alt: g_product.title }}
+              {%- endif -%}
+            </div>
+            <p class="lp-gift__name">{{ g_product.title }}</p>
+            <p class="lp-gift__kind">{{ g_label }}</p>
+            {%- if g_ok -%}
+              <p class="lp-gift__price"><s>{{ g_product.price | money_without_trailing_zeros }}</s> <strong>FREE</strong></p>
+            {%- else -%}
+              <p class="lp-gift__price lp-gift__price--out">Sold out</p>
+            {%- endif -%}
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </section>
+
+  {%- comment -%} ── Pickup ─────────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-section" id="lp-pickup">
+    <div class="lp-section__head">
+      <p class="lp-eyebrow">{{ section.settings.pickup_eyebrow }}</p>
+      <h2 class="lp-h2">{{ section.settings.pickup_heading }}</h2>
+      <p class="lp-body">{{ section.settings.pickup_body }}</p>
+    </div>
+
+    <div class="lp-pickup">
+      {%- for i in (1..2) -%}
+        {%- liquid
+          assign p_name = 'pickup_' | append: i | append: '_name'
+          assign p_addr = 'pickup_' | append: i | append: '_address'
+          assign p_note = 'pickup_' | append: i | append: '_note'
+        -%}
+        {%- if section.settings[p_name] != blank -%}
+          <div class="lp-pickup__place">
+            <p class="lp-pickup__name">{{ section.settings[p_name] }}</p>
+            <p class="lp-pickup__addr">{{ section.settings[p_addr] | newline_to_br }}</p>
+            {%- if section.settings[p_note] != blank -%}<p class="lp-pickup__note">{{ section.settings[p_note] }}</p>{%- endif -%}
+            <a
+              class="lp-pickup__map"
+              href="https://www.google.com/maps/search/?api=1&query={{ section.settings[p_addr] | strip_newlines | url_encode }}"
+              target="_blank"
+              rel="noopener"
+            >Open in Maps</a>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
     </div>
   </section>
 
-  {%- comment -%} ── Contact ────────────────────────────────────────────── {%- endcomment -%}
-  <section class="lp-section" id="lp-contact">
-    <div class="lp-contact">
-      <p class="lp-eyebrow">{{ section.settings.contact_eyebrow }}</p>
-      <h2 class="lp-h3">{{ section.settings.contact_heading }}</h2>
-      <p class="lp-body">{{ section.settings.contact_body }}</p>
+  {%- comment -%} ── Fine print ─────────────────────────────────────────── {%- endcomment -%}
+  <section class="lp-section lp-section--terms" id="lp-terms">
+    <div class="lp-section__head">
+      <p class="lp-eyebrow">{{ section.settings.terms_eyebrow }}</p>
+      <h2 class="lp-h2">{{ section.settings.terms_heading }}</h2>
+    </div>
 
-      <div class="lp-contact__links">
-        {%- if section.settings.contact_email != blank -%}
-          <a href="mailto:{{ section.settings.contact_email }}">{{ section.settings.contact_email }}</a>
-        {%- endif -%}
-        <span class="lp-contact__sep"></span>
+    <ul class="lp-terms">
+      {%- for term in terms -%}
+        {%- assign line = term | strip_html | strip -%}
+        {%- if line != blank -%}<li>{{ line }}</li>{%- endif -%}
+      {%- endfor -%}
+    </ul>
+
+    <div class="lp-contact">
+      <p>{{ section.settings.contact_heading }}</p>
+      <p class="lp-contact__links">
         {%- if section.settings.contact_phone != blank -%}
-          <a href="tel:{{ section.settings.contact_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' }}">
+          <a href="tel:+1{{ section.settings.contact_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' }}">
             {{- section.settings.contact_phone -}}
           </a>
         {%- endif -%}
-      </div>
-    </div>
-  </section>
-
-  {%- comment -%} ── Final CTA ──────────────────────────────────────────── {%- endcomment -%}
-  <section class="lp-final">
-    <p class="lp-eyebrow">{{ section.settings.final_eyebrow }}</p>
-    <h2 class="lp-display">{{ section.settings.final_heading }}</h2>
-    <p class="lp-body">{{ section.settings.final_body }}</p>
-    <div style="padding-top:16px;width:100%;display:flex;justify-content:center">
-      <a class="lp-btn lp-btn--wide" href="#lp-products">{{ section.settings.hero_cta }}</a>
+        {%- if section.settings.contact_email != blank -%}
+          <a href="mailto:{{ section.settings.contact_email }}">{{ section.settings.contact_email }}</a>
+        {%- endif -%}
+      </p>
     </div>
   </section>
 
   {%- comment -%} ── Footer ─────────────────────────────────────────────── {%- endcomment -%}
   <footer class="lp-footer">
-    <div class="lp-footer__cols">
-      <div class="lp-footer__brand">
-        {% render 'lp-blackfriday-logo', url: section.settings.logo_url %}
-        <p>{{ section.settings.footer_tagline }}</p>
-      </div>
-
-      <div class="lp-footer__col">
-        <h2>Products</h2>
-        {%- for block in product_blocks -%}
-          {%- if block.settings.product != blank -%}
-            <a href="{{ block.settings.product.url }}">
-              {{- block.settings.title | default: block.settings.product.title -}}
-            </a>
-          {%- endif -%}
-        {%- endfor -%}
-      </div>
-
-      <div class="lp-footer__col">
-        <h2>Company</h2>
-        <p>{{ section.settings.footer_company_1 }}</p>
-        <p>{{ section.settings.footer_company_2 }}</p>
-      </div>
-
-      <div class="lp-footer__col">
-        <h2>Headquarters</h2>
-        <p>{{ section.settings.footer_hq_1 }}</p>
-        <p>{{ section.settings.footer_hq_2 }}</p>
-      </div>
-    </div>
-
+    {% render 'lp-blackfriday-logo', url: section.settings.logo_url %}
+    <p>{{ section.settings.footer_tagline }}</p>
     <div class="lp-footer__bar">
-      <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+      <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</p>
       <div class="lp-footer__legal">
-        {%- comment -%}
-          The prototype rendered these as inert <button> elements. They point at
-          the store's real policy pages here, and drop out when a policy is unset.
-        {%- endcomment -%}
-        {%- if shop.privacy_policy -%}
-          <a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title }}</a>
-        {%- endif -%}
-        {%- if shop.terms_of_service -%}
-          <a href="{{ shop.terms_of_service.url }}">{{ shop.terms_of_service.title }}</a>
-        {%- endif -%}
+        {%- if shop.privacy_policy -%}<a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title }}</a>{%- endif -%}
+        {%- if shop.terms_of_service -%}<a href="{{ shop.terms_of_service.url }}">{{ shop.terms_of_service.title }}</a>{%- endif -%}
+        {%- if shop.refund_policy -%}<a href="{{ shop.refund_policy.url }}">{{ shop.refund_policy.title }}</a>{%- endif -%}
       </div>
     </div>
   </footer>
@@ -397,13 +444,7 @@
   {%- comment -%} ── Cart drawer ────────────────────────────────────────── {%- endcomment -%}
   <div class="lp-drawer__backdrop" data-lp-backdrop></div>
 
-  <aside
-    class="lp-drawer"
-    data-lp-drawer
-    role="dialog"
-    aria-modal="true"
-    aria-label="Your cart"
-  >
+  <aside class="lp-drawer" data-lp-drawer role="dialog" aria-modal="true" aria-label="Your cart">
     <div class="lp-drawer__head">
       <p>Your Cart</p>
       <button type="button" class="lp-drawer__close" data-lp-close aria-label="Close cart">
@@ -412,247 +453,186 @@
         </svg>
       </button>
     </div>
-
+    <div class="lp-progress" data-lp-progress hidden></div>
+    <p class="lp-drawer__error" data-lp-error hidden></p>
     <div class="lp-drawer__items" data-lp-items></div>
     <div class="lp-drawer__foot" data-lp-foot hidden></div>
   </aside>
 </div>
 
 {%- comment -%}
-  Gallon to free-size pairs, read by lp-blackfriday.js to keep each free size at
-  its gallon's quantity in the drawer.
+  Everything lp-blackfriday.js needs, rendered from live data. Bottle ids are
+  the product blocks on this page; the two sealant ids are the free item.
 {%- endcomment -%}
-<script type="application/json" data-lp-pairs>
-  [
-    {%- assign first_pair = true -%}
-    {%- for block in product_blocks -%}
-      {%- liquid
-        assign pair_product = block.settings.product
-        assign pair_gift = block.settings.gift
-        assign pair_variant = pair_product.selected_or_first_available_variant | default: pair_product.variants.first
-        assign pair_gift_variant = pair_gift.selected_or_first_available_variant | default: pair_gift.variants.first
-      -%}
-      {%- comment -%}
-        Availability is part of the pair. syncGifts sends every free size in one
-        /cart/update.js call, so a single out-of-stock free size would fail the
-        request and leave every other pair unsynced. An unavailable free size is
-        simply not a pair, which is also what the card renders.
-      {%- endcomment -%}
-      {%- if pair_variant != blank and pair_gift_variant != blank and pair_gift_variant.available -%}
-        {%- unless first_pair %},{% endunless -%}
-        { "gallon": {{ pair_variant.id }}, "gift": {{ pair_gift_variant.id }} }
-        {%- assign first_pair = false -%}
-      {%- endif -%}
-    {%- endfor -%}
-  ]
+<script type="application/json" data-lp-config>
+  {
+    "state": {{ state | json }},
+    "start": {{ start_ts | times: 1000 }},
+    "end": {{ end_ts | times: 1000 }},
+    "afterEnd": {{ section.settings.after_end | default: 'soon' | json }},
+    "tier": { "min": 5, "base": 25, "bulk": 35 },
+    "bottles": [
+      {%- assign first_bottle = true -%}
+      {%- for block in product_blocks -%}
+        {%- assign b_product = block.settings.product -%}
+        {%- assign b_variant = b_product.selected_or_first_available_variant | default: b_product.variants.first -%}
+        {%- if b_variant != blank -%}
+          {%- unless first_bottle %},{% endunless -%}
+          {"id": {{ b_variant.id }}, "marine": {% if b_product.handle contains 'marine' %}true{% else %}false{% endif %}}
+          {%- assign first_bottle = false -%}
+        {%- endif -%}
+      {%- endfor -%}
+    ],
+    "gift": {
+      "standard": {% if gift_std_variant != blank %}{{ gift_std_variant.id }}{% else %}null{% endif %},
+      "standardOk": {{ gift_std_ok }},
+      "marine": {% if gift_mar_variant != blank %}{{ gift_mar_variant.id }}{% else %}null{% endif %},
+      "marineOk": {{ gift_mar_ok }}
+    },
+    "text": {
+      "soonButton": {{ section.settings.soon_button | json }},
+      "endedButton": {{ section.settings.ended_button | json }}
+    }
+  }
 </script>
 
 <script src="{{ 'lp-blackfriday.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
-  "name": "Boat Show landing page",
+  "name": "Black Friday landing page",
   "tag": "section",
   "settings": [
-    { "type": "header", "content": "Header" },
-    { "type": "text", "id": "header_cta", "label": "Header button", "default": "SHOP NOW" },
+    { "type": "header", "content": "Period" },
     {
-      "type": "url",
-      "id": "logo_url",
-      "label": "Footer logo link",
-      "info": "Where the footer wordmark points. The header one always scrolls to the products, to keep visitors on the page. Leave empty to make the footer logo a plain image."
+      "type": "paragraph",
+      "content": "Dates use the format YYYY-MM-DD HH:MM, in Florida time. Before the start the page shows full prices, a countdown and disabled buttons. Keep these dates the same as the automatic discounts."
     },
+    { "type": "text", "id": "start_at", "label": "Offer starts", "default": "2026-11-27 00:00", "info": "Leave empty to keep the page in \"coming soon\" with no countdown." },
+    { "type": "text", "id": "end_at", "label": "Offer ends", "default": "2026-11-27 23:59", "info": "Leave empty for no end date." },
+    {
+      "type": "select",
+      "id": "tz_offset",
+      "label": "Florida time offset",
+      "options": [
+        { "value": "-0500", "label": "EST (−05:00), November to March" },
+        { "value": "-0400", "label": "EDT (−04:00), March to November" }
+      ],
+      "default": "-0500"
+    },
+    {
+      "type": "select",
+      "id": "after_end",
+      "label": "After the offer ends",
+      "options": [
+        { "value": "soon", "label": "Coming soon, without dates" },
+        { "value": "ended", "label": "This offer has ended" }
+      ],
+      "default": "ended"
+    },
+    { "type": "textarea", "id": "period_short", "label": "Seal and ribbon date", "default": "NOV\n27", "info": "One or two short lines, e.g. NOV 27 or NOV 27–30." },
+    { "type": "text", "id": "period_long", "label": "Period text", "default": "Black Friday, Friday November 27, 2026", "info": "Shown under the countdown and in the fine print, where [period] appears." },
+
+    { "type": "header", "content": "Header" },
+    { "type": "text", "id": "header_cta", "label": "Header button", "default": "SHOP" },
+    { "type": "url", "id": "logo_url", "label": "Footer logo link" },
 
     { "type": "header", "content": "Hero" },
-    { "type": "text", "id": "badge_text", "label": "Badge", "default": "BOAT SHOW SEASON · OCT 15 – NOV 1" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Buy the Gallon, Get the Small One Free" },
-    {
-      "type": "text",
-      "id": "subheading",
-      "label": "Subheading",
-      "default": "A free small size with every 3.78L gallon in the Classic Line, through November 1."
-    },
-    {
-      "type": "textarea",
-      "id": "intro",
-      "label": "Intro paragraph",
-      "default": "Formulated for the marine environment first, where salt and constant sun break down protection faster than anything a car sees on the road. Stock up on the gallon and keep the small size on board, in the truck or in the shop."
-    },
-    { "type": "text", "id": "hero_cta", "label": "Primary button", "default": "SHOP THE GALLONS" },
-    {
-      "type": "text",
-      "id": "hero_note",
-      "label": "Button note",
-      "default": "The free size is added with each gallon. Discount applied automatically at checkout."
-    },
-    { "type": "image_picker", "id": "hero_image", "label": "Hero image" },
+    { "type": "text", "id": "offer_line", "label": "Offer line", "default": "25% off · 35% when you buy 5" },
+    { "type": "text", "id": "offer_gift", "label": "Offer line, free item", "default": "free SiO2 Top Sealant", "info": "Hidden automatically when both sealants are sold out." },
+    { "type": "text", "id": "countdown_soon", "label": "Countdown label before the start", "default": "Starts in" },
+    { "type": "text", "id": "countdown_live", "label": "Countdown label during the offer", "default": "Ends in" },
+    { "type": "text", "id": "ended_text", "label": "Ended message", "default": "This offer has ended." },
+    { "type": "text", "id": "hero_cta", "label": "Hero button", "default": "SHOP THE PROFESSIONAL LINE" },
+    { "type": "product", "id": "hero_product_1", "label": "Pedestal bottle, left" },
+    { "type": "product", "id": "hero_product_2", "label": "Pedestal bottle, centre" },
+    { "type": "product", "id": "hero_product_3", "label": "Pedestal bottle, right" },
 
-    { "type": "header", "content": "Trust bar" },
-    {
-      "type": "textarea",
-      "id": "trust_items",
-      "label": "Items (one per line)",
-      "default": "TRUSTED BY THE PROS\nBUILT FOR MARINE, PROVEN ON PAINT\nSIO2 FORMULA\nMADE IN THE USA"
-    },
-
-    { "type": "header", "content": "Products" },
-    { "type": "text", "id": "products_eyebrow", "label": "Eyebrow", "default": "CLASSIC LINE" },
-    { "type": "text", "id": "products_heading", "label": "Heading", "default": "Choose Your Gallon" },
-    {
-      "type": "textarea",
-      "id": "products_body",
-      "label": "Body",
-      "default": "Every 3.78L gallon comes with the small size of the same product, free. One click adds both to your cart."
-    },
-
-    { "type": "header", "content": "Crossover section" },
-    { "type": "text", "id": "crossover_eyebrow", "label": "Eyebrow", "default": "CROSSOVER TECHNOLOGY" },
-    {
-      "type": "text",
-      "id": "crossover_heading",
-      "label": "Heading",
-      "default": "Built where conditions are worse."
-    },
-    {
-      "type": "textarea",
-      "id": "crossover_body",
-      "label": "Body",
-      "default": "Malbor formulas were engineered for saltwater and the relentless UV exposure of tropical marine environments. These are the conditions the line was built to handle, not conditions it was later adapted to."
-    },
-    {
-      "type": "textarea",
-      "id": "crossover_body_2",
-      "label": "Second paragraph",
-      "default": "From small center consoles to superyachts, the routine is the same: wash, compound, finish, protect. Whether you are getting ready for the Fort Lauderdale International Boat Show or for the season after it, start with a clean, protected surface."
-    },
-    { "type": "image_picker", "id": "crossover_image", "label": "Image" },
+    { "type": "header", "content": "Buttons" },
+    { "type": "text", "id": "soon_button", "label": "Button before the start", "default": "Starts Black Friday" },
+    { "type": "text", "id": "ended_button", "label": "Button after the end", "default": "Offer ended" },
 
     { "type": "header", "content": "How it works" },
-    { "type": "text", "id": "steps_eyebrow", "label": "Eyebrow", "default": "PROMOTION STEP-BY-STEP" },
-    { "type": "text", "id": "steps_heading", "label": "Heading", "default": "How the Offer Works" },
+    { "type": "text", "id": "steps_eyebrow", "label": "Eyebrow", "default": "HOW IT WORKS" },
+    { "type": "text", "id": "steps_heading", "label": "Heading", "default": "Four steps, no code" },
+
+    { "type": "header", "content": "Products" },
+    { "type": "text", "id": "products_eyebrow", "label": "Eyebrow", "default": "PROFESSIONAL LINE · 60ML" },
+    { "type": "text", "id": "products_heading", "label": "Heading", "default": "Pick your coatings" },
+    { "type": "textarea", "id": "products_body", "label": "Body", "default": "25% off every bottle, 35% off every bottle when you take 5 or more. Mix and match." },
+    { "type": "text", "id": "group_boat_title", "label": "Boat group title", "default": "Boat" },
+    { "type": "text", "id": "group_boat_body", "label": "Boat group text", "default": "Marine coatings for gelcoat, plus glass." },
+    { "type": "text", "id": "group_car_title", "label": "Car group title", "default": "Car" },
+    { "type": "text", "id": "group_car_body", "label": "Car group text", "default": "Paint, wheels and film." },
+    { "type": "text", "id": "group_interior_title", "label": "Interior group title", "default": "Interior & trim" },
+    { "type": "text", "id": "group_interior_body", "label": "Interior group text", "default": "Leather, plastic and glass." },
+
+    { "type": "header", "content": "Free sealant" },
+    { "type": "product", "id": "gift_standard", "label": "SiO2 Top Sealant, standard", "info": "Must match the \"gets\" products of the free sealant discount." },
+    { "type": "product", "id": "gift_marine", "label": "SiO2 Top Sealant, Marine" },
+    { "type": "text", "id": "gift_eyebrow", "label": "Eyebrow", "default": "ON US" },
+    { "type": "text", "id": "gift_heading", "label": "Heading", "default": "SiO2 Top Sealant 473ml" },
+    { "type": "text", "id": "gift_tag", "label": "Tag", "default": "Free with your order" },
+    { "type": "textarea", "id": "gift_body", "label": "Body", "default": "It goes into your cart with your first bottle: the Marine version with a Marine coating, the standard one otherwise. You can switch between them in the cart. One per order." },
+    { "type": "text", "id": "gift_soldout_text", "label": "Both sealants sold out", "default": "Free SiO2 while supplies last: sold out" },
+
+    { "type": "header", "content": "Pickup" },
+    { "type": "text", "id": "pickup_eyebrow", "label": "Eyebrow", "default": "LOCAL PICKUP ONLY" },
+    { "type": "text", "id": "pickup_heading", "label": "Heading", "default": "Pick up in South Florida" },
+    { "type": "textarea", "id": "pickup_body", "label": "Body", "default": "Choose your pickup location at checkout and wait for the \"ready for pickup\" email. Bring your order confirmation and a photo ID." },
+    { "type": "text", "id": "pickup_1_name", "label": "Location 1", "default": "Pompano Beach" },
+    { "type": "textarea", "id": "pickup_1_address", "label": "Location 1 address", "default": "2250 W Copans Rd\nPompano Beach, FL 33069" },
+    { "type": "text", "id": "pickup_1_note", "label": "Location 1 note", "default": "9 AM to 5 PM. Usually ready within 24 hours." },
+    { "type": "text", "id": "pickup_2_name", "label": "Location 2", "default": "Safe Harbor Lauderdale Marine Center" },
+    { "type": "textarea", "id": "pickup_2_address", "label": "Location 2 address", "default": "2005 SW 20th St, Ste 105\nFort Lauderdale, FL 33315" },
+    { "type": "text", "id": "pickup_2_note", "label": "Location 2 note", "default": "9 AM to 5 PM. Ready in 2 to 4 days." },
 
     { "type": "header", "content": "Fine print" },
-    { "type": "text", "id": "terms_eyebrow", "label": "Eyebrow", "default": "PROMOTION GUIDELINES" },
-    { "type": "text", "id": "terms_heading", "label": "Heading", "default": "The Fine Print" },
+    { "type": "text", "id": "terms_eyebrow", "label": "Eyebrow", "default": "THE FINE PRINT" },
+    { "type": "text", "id": "terms_heading", "label": "Heading", "default": "Offer details" },
     {
       "type": "textarea",
       "id": "terms",
       "label": "Terms (one per line)",
-      "info": "Keep these in sync with the automatic discounts configured in Discounts.",
-      "default": "Buy one 3.78L gallon and get the small size of the same product free: 473ml, or 946ml for Max Pro Shampoo.\nOne free size per gallon, in the same order as the gallon.\nValid October 15 – November 1, 2026, while supplies last.\nLocal pickup in Pompano Beach, FL and at Safe Harbor Lauderdale Marine Center, Fort Lauderdale, FL.\nTaxes calculated at checkout."
+      "info": "[period] is replaced with the period text. Keep these in sync with the automatic discounts.",
+      "default": "25% off every Professional Line 60ml bottle. Buy 5 bottles or more, mixed as you like, and every bottle is 35% off.\nOne free SiO2 Top Sealant 473ml per order, standard or Marine, with at least one bottle in the order.\nValid [period], Florida time.\nWhile supplies last. Stock is limited and quantities may be capped at what is on hand.\nKits and the Classic Line are not part of this offer.\nLocal pickup only, in Pompano Beach or at Safe Harbor Lauderdale Marine Center. No shipping and no free shipping.\nDiscounts apply automatically at checkout. Taxes calculated at checkout."
     },
-    { "type": "image_picker", "id": "terms_image", "label": "Image" },
 
     { "type": "header", "content": "Contact" },
-    { "type": "text", "id": "contact_eyebrow", "label": "Eyebrow", "default": "EXPERT ASSISTANCE" },
-    { "type": "text", "id": "contact_heading", "label": "Heading", "default": "Questions on how to apply?" },
-    {
-      "type": "textarea",
-      "id": "contact_body",
-      "label": "Body",
-      "default": "Need guidance on prepping gelcoat or clear coat, or on cure times in South Florida humidity? Our team is happy to walk you through it before you order."
-    },
-    { "type": "text", "id": "contact_email", "label": "Email", "default": "sales@malborcoatings.com" },
+    { "type": "text", "id": "contact_heading", "label": "Heading", "default": "Questions before you order? Call or write to us." },
     { "type": "text", "id": "contact_phone", "label": "Phone", "default": "(925) 876-9005" },
-
-    { "type": "header", "content": "Final call to action" },
-    { "type": "text", "id": "final_eyebrow", "label": "Eyebrow", "default": "OFFER ENDS NOVEMBER 1" },
-    {
-      "type": "text",
-      "id": "final_heading",
-      "label": "Heading",
-      "default": "A free small size with every gallon, through November 1."
-    },
-    {
-      "type": "textarea",
-      "id": "final_body",
-      "label": "Body",
-      "default": "Stock up for boat show season and the months after it. Available while supplies last."
-    },
+    { "type": "text", "id": "contact_email", "label": "Email", "default": "sales@malborcoatings.com" },
 
     { "type": "header", "content": "Footer" },
-    {
-      "type": "textarea",
-      "id": "footer_tagline",
-      "label": "Tagline",
-      "default": "Ocean-tested silicon dioxide protection engineered for deep gloss and lasting surface performance"
-    },
-    { "type": "text", "id": "footer_company_1", "label": "Company line 1", "default": "About Malbor" },
-    {
-      "type": "text",
-      "id": "footer_company_2",
-      "label": "Company line 2",
-      "default": "Certified Installer Program"
-    },
-    { "type": "text", "id": "footer_hq_1", "label": "HQ line 1", "default": "Fort Lauderdale, Florida" },
-    { "type": "text", "id": "footer_hq_2", "label": "HQ line 2", "default": "MADE IN THE USA" }
+    { "type": "text", "id": "footer_tagline", "label": "Tagline", "default": "Ceramic coatings for boats, cars and interiors. Made in the USA." }
   ],
   "blocks": [
     {
       "type": "product",
-      "name": "Gallon + free size",
-      "limit": 6,
+      "name": "Bottle",
+      "limit": 30,
       "settings": [
-        { "type": "product", "id": "product", "label": "Gallon" },
-        {
-          "type": "product",
-          "id": "gift",
-          "label": "Free size",
-          "info": "Must match the Get product of this gallon's automatic Buy X Get Y discount."
-        },
-        { "type": "text", "id": "gift_size", "label": "Free size label", "default": "473ML" },
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "checkbox", "id": "in_boat", "label": "Show in Boat", "default": false },
+        { "type": "checkbox", "id": "in_car", "label": "Show in Car", "default": false },
+        { "type": "checkbox", "id": "in_interior", "label": "Show in Interior & trim", "default": false },
         { "type": "text", "id": "title", "label": "Title override" },
-        { "type": "text", "id": "subtitle", "label": "Subtitle" },
-        { "type": "textarea", "id": "description", "label": "Description override" },
-        { "type": "image_picker", "id": "image", "label": "Image override" }
+        { "type": "text", "id": "subtitle", "label": "Short description", "info": "Do not mention how long the protection lasts." },
+        { "type": "image_picker", "id": "image", "label": "Image override", "info": "A cut-out photo on a transparent background looks best on the pedestal." }
       ]
     },
     {
       "type": "step",
       "name": "Step",
-      "limit": 3,
+      "limit": 4,
       "settings": [
-        { "type": "text", "id": "tag", "label": "Tag", "default": "STEP 01" },
         { "type": "text", "id": "title", "label": "Title" },
         { "type": "textarea", "id": "body", "label": "Body" }
       ]
     }
   ],
   "presets": [
-    {
-      "name": "Boat Show landing page",
-      "blocks": [
-        { "type": "product" },
-        { "type": "product" },
-        { "type": "product" },
-        { "type": "product" },
-        { "type": "product" },
-        {
-          "type": "step",
-          "settings": {
-            "tag": "STEP 01",
-            "title": "Add the Gallon",
-            "body": "Each gallon goes into your cart together with its free small size."
-          }
-        },
-        {
-          "type": "step",
-          "settings": {
-            "tag": "STEP 02",
-            "title": "Automatic Discount",
-            "body": "The small size is set to $0 at checkout. No code required."
-          }
-        },
-        {
-          "type": "step",
-          "settings": {
-            "tag": "STEP 03",
-            "title": "Local Pickup",
-            "body": "Pick up in Pompano Beach or at Safe Harbor Lauderdale Marine Center, Fort Lauderdale."
-          }
-        }
-      ]
-    }
+    { "name": "Black Friday landing page" }
   ]
 }
 {% endschema %}
