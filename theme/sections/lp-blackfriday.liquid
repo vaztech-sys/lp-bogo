@@ -1,18 +1,20 @@
 {%- comment -%}
-  Malbor BOGO campaign landing page.
+  Malbor Boat Show campaign landing page: buy a 3.78L gallon, get the small
+  size of the same product free.
 
-  Converted from the React prototype at src/LandingPage.tsx. Two things changed
-  deliberately in the port:
+  Built from the BOGO page (sections/lp-bogo.liquid). What changed:
 
-  1. Product name, price and availability come from the Shopify product object
-     rather than a hardcoded array, so the page can never quote a price the
-     checkout disagrees with.
-  2. Every card is a real /cart/add form, so adding to cart works without JS
-     and the drawer reflects the actual cart (including the discount Shopify
-     applied, not a number computed in the browser).
+  1. Each product block pairs a gallon with its free size. The card adds BOTH
+     to the cart in one request, with or without JavaScript. The BOGO page added
+     a single unit and relied on the shopper adding the second one; Shopify's
+     automatic Buy X Get Y discount never adds the free item by itself, so the
+     BOGO discount was used zero times.
+  2. The drawer keeps each free size locked to its gallon's quantity and shows
+     it as FREE. Prices and savings still come from /cart.js, so the page shows
+     the discount Shopify actually applied.
 {%- endcomment -%}
 
-{{ 'lp-bogo.css' | asset_url | stylesheet_tag }}
+{{ 'lp-blackfriday.css' | asset_url | stylesheet_tag }}
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,8 +31,8 @@
 -%}
 
 <div
-  class="lp-bogo"
-  data-lp-bogo
+  class="lp-page"
+  data-lp-page
   data-cart-open="false"
   data-money-format="{{ shop.money_format | strip_html | escape }}"
 >
@@ -39,7 +41,7 @@
   {%- comment -%} ── Header ─────────────────────────────────────────────── {%- endcomment -%}
   <header class="lp-header">
     <div class="lp-header__inner">
-      {% render 'lp-bogo-logo', url: '#lp-products' %}
+      {% render 'lp-blackfriday-logo', url: '#lp-products' %}
 
       <nav class="lp-nav" aria-label="Landing page sections">
         <a href="#lp-products">PRODUCTS</a>
@@ -54,7 +56,7 @@
           data-lp-open
           aria-label="Open cart"
         >
-          {% render 'lp-bogo-cart-icon' %}
+          {% render 'lp-blackfriday-cart-icon' %}
           <span
             class="lp-cart-toggle__count"
             data-lp-count
@@ -141,6 +143,20 @@
           if card_variant == blank
             assign card_variant = card_product.variants.first
           endif
+
+          assign gift_product = block.settings.gift
+          assign gift_variant = gift_product.selected_or_first_available_variant
+          if gift_variant == blank
+            assign gift_variant = gift_product.first_available_variant
+          endif
+          if gift_variant == blank
+            assign gift_variant = gift_product.variants.first
+          endif
+
+          assign gift_ready = false
+          if gift_product != blank and gift_variant != blank and gift_variant.available
+            assign gift_ready = true
+          endif
         -%}
         {%- if card_product == blank or card_variant == blank -%}
           {%- continue -%}
@@ -148,6 +164,14 @@
 
         <div class="lp-card" {{ block.shopify_attributes }}>
           <div class="lp-card__media">
+            {%- comment -%}
+              Gated on gift_ready, not on the product: a sold-out free size
+              would otherwise promise "+ FREE 473ML" in the corner of the same
+              card whose body says the free size is sold out.
+            {%- endcomment -%}
+            {%- if gift_ready -%}
+              <span class="lp-card__flag">+ FREE {{ block.settings.gift_size | default: 'SMALL SIZE' }}</span>
+            {%- endif -%}
             {%- if block.settings.image -%}
               {{ block.settings.image | image_url: width: 600 | image_tag: loading: 'lazy', alt: card_product.title, widths: '300,600' }}
             {%- elsif card_product.featured_image -%}
@@ -165,17 +189,40 @@
               {{ block.settings.description | default: card_product.description | strip_html | truncatewords: 60 }}
             </p>
 
+            {%- if gift_product != blank -%}
+              {%- if gift_ready -%}
+                <p class="lp-card__gift">
+                  <span class="lp-card__gift-label">Free with this gallon</span>
+                  <span>{{ gift_product.title }} <s>{{ gift_variant.price | money_without_trailing_zeros }}</s></span>
+                </p>
+              {%- else -%}
+                <p class="lp-card__gift lp-card__gift--out">
+                  <span class="lp-card__gift-label">Free size sold out</span>
+                  <span>The gallon is available at its regular price. The free {{ block.settings.gift_size | default: 'size' }} is being restocked.</span>
+                </p>
+              {%- endif -%}
+            {%- endif -%}
+
             <div class="lp-card__foot">
               <p class="lp-card__price">{{ card_product.price | money_without_trailing_zeros }}</p>
 
               {%- if card_product.available -%}
+                {%- comment -%}
+                  items[] posts add both lines in one request, so the free size
+                  lands in the cart even when the script never loads.
+                {%- endcomment -%}
                 <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="id" value="{{ card_variant.id }}">
-                  <input type="hidden" name="quantity" value="1">
+                  <input type="hidden" name="items[][id]" value="{{ card_variant.id }}">
+                  <input type="hidden" name="items[][quantity]" value="1">
+                  {%- if gift_ready -%}
+                    <input type="hidden" name="items[][id]" value="{{ gift_variant.id }}">
+                    <input type="hidden" name="items[][quantity]" value="1">
+                  {%- endif -%}
                   <button
                     type="submit"
                     class="lp-btn"
                     data-lp-add="{{ card_variant.id }}"
+                    {% if gift_ready %}data-lp-gift="{{ gift_variant.id }}"{% endif %}
                     data-lp-add-label="{{ card_product.title | escape }}"
                   >
                     <span data-lp-icon hidden></span>
@@ -257,11 +304,11 @@
         {{ section.settings.terms_image | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(max-width: 900px) 100vw, 50vw', widths: '600,900,1200' }}
       {%- else -%}
         <img
-          src="{{ 'lp-bogo-lineup.png' | asset_img_url: '1200x' }}"
-          alt="Malbor product lineup"
+          src="{{ 'lp-boatshow-showroom.jpg' | asset_img_url: '1200x' }}"
+          alt="Malbor gallons on display at the shop counter"
           loading="lazy"
-          width="1672"
-          height="941"
+          width="1540"
+          height="1032"
         >
       {%- endif -%}
     </div>
@@ -302,7 +349,7 @@
   <footer class="lp-footer">
     <div class="lp-footer__cols">
       <div class="lp-footer__brand">
-        {% render 'lp-bogo-logo', url: section.settings.logo_url %}
+        {% render 'lp-blackfriday-logo', url: section.settings.logo_url %}
         <p>{{ section.settings.footer_tagline }}</p>
       </div>
 
@@ -371,15 +418,44 @@
   </aside>
 </div>
 
-<script src="{{ 'lp-bogo.js' | asset_url }}" defer></script>
+{%- comment -%}
+  Gallon to free-size pairs, read by lp-blackfriday.js to keep each free size at
+  its gallon's quantity in the drawer.
+{%- endcomment -%}
+<script type="application/json" data-lp-pairs>
+  [
+    {%- assign first_pair = true -%}
+    {%- for block in product_blocks -%}
+      {%- liquid
+        assign pair_product = block.settings.product
+        assign pair_gift = block.settings.gift
+        assign pair_variant = pair_product.selected_or_first_available_variant | default: pair_product.variants.first
+        assign pair_gift_variant = pair_gift.selected_or_first_available_variant | default: pair_gift.variants.first
+      -%}
+      {%- comment -%}
+        Availability is part of the pair. syncGifts sends every free size in one
+        /cart/update.js call, so a single out-of-stock free size would fail the
+        request and leave every other pair unsynced. An unavailable free size is
+        simply not a pair, which is also what the card renders.
+      {%- endcomment -%}
+      {%- if pair_variant != blank and pair_gift_variant != blank and pair_gift_variant.available -%}
+        {%- unless first_pair %},{% endunless -%}
+        { "gallon": {{ pair_variant.id }}, "gift": {{ pair_gift_variant.id }} }
+        {%- assign first_pair = false -%}
+      {%- endif -%}
+    {%- endfor -%}
+  ]
+</script>
+
+<script src="{{ 'lp-blackfriday.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
-  "name": "BOGO landing page",
+  "name": "Boat Show landing page",
   "tag": "section",
   "settings": [
     { "type": "header", "content": "Header" },
-    { "type": "text", "id": "header_cta", "label": "Header button", "default": "CLAIM BOGO" },
+    { "type": "text", "id": "header_cta", "label": "Header button", "default": "SHOP NOW" },
     {
       "type": "url",
       "id": "logo_url",
@@ -388,26 +464,26 @@
     },
 
     { "type": "header", "content": "Hero" },
-    { "type": "text", "id": "badge_text", "label": "Badge", "default": "LIMITED TIME · STOCK CLEARANCE" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Buy 1, Get 1 Free" },
+    { "type": "text", "id": "badge_text", "label": "Badge", "default": "BOAT SHOW SEASON · OCT 15 – NOV 1" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Buy the Gallon, Get the Small One Free" },
     {
       "type": "text",
       "id": "subheading",
       "label": "Subheading",
-      "default": "Every 3.78L gallon in the Classic Line — while stock lasts."
+      "default": "A free small size with every 3.78L gallon in the Classic Line, through November 1."
     },
     {
       "type": "textarea",
       "id": "intro",
       "label": "Intro paragraph",
-      "default": "Formulated for the marine environment first, where salt and constant sun break down protection faster than anything a car sees on the road. High gloss, UV barrier and a super hydrophobic finish on both gelcoat and automotive paint."
+      "default": "Formulated for the marine environment first, where salt and constant sun break down protection faster than anything a car sees on the road. Stock up on the gallon and keep the small size on board, in the truck or in the shop."
     },
-    { "type": "text", "id": "hero_cta", "label": "Primary button", "default": "SHOP THE BOGO NOW" },
+    { "type": "text", "id": "hero_cta", "label": "Primary button", "default": "SHOP THE GALLONS" },
     {
       "type": "text",
       "id": "hero_note",
       "label": "Button note",
-      "default": "Discount automatically applied at checkout"
+      "default": "The free size is added with each gallon. Discount applied automatically at checkout."
     },
     { "type": "image_picker", "id": "hero_image", "label": "Hero image" },
 
@@ -421,12 +497,12 @@
 
     { "type": "header", "content": "Products" },
     { "type": "text", "id": "products_eyebrow", "label": "Eyebrow", "default": "CLASSIC LINE" },
-    { "type": "text", "id": "products_heading", "label": "Heading", "default": "Choose Your 3.78L Gallons" },
+    { "type": "text", "id": "products_heading", "label": "Heading", "default": "Choose Your Gallon" },
     {
       "type": "textarea",
       "id": "products_body",
       "label": "Body",
-      "default": "Buy 1 and Get 1 free of the same product. Add two of the same 3.78L gallon to your cart — the second one is on us."
+      "default": "Every 3.78L gallon comes with the small size of the same product, free. One click adds both to your cart."
     },
 
     { "type": "header", "content": "Crossover section" },
@@ -447,13 +523,13 @@
       "type": "textarea",
       "id": "crossover_body_2",
       "label": "Second paragraph",
-      "default": "From small center consoles to superyachts, the routine is the same: wash, compound, finish, protect — then do it again before salt and sun undo it. What holds up on a hull holds up on paint."
+      "default": "From small center consoles to superyachts, the routine is the same: wash, compound, finish, protect. Whether you are getting ready for the Fort Lauderdale International Boat Show or for the season after it, start with a clean, protected surface."
     },
     { "type": "image_picker", "id": "crossover_image", "label": "Image" },
 
     { "type": "header", "content": "How it works" },
     { "type": "text", "id": "steps_eyebrow", "label": "Eyebrow", "default": "PROMOTION STEP-BY-STEP" },
-    { "type": "text", "id": "steps_heading", "label": "Heading", "default": "How the BOGO Works" },
+    { "type": "text", "id": "steps_heading", "label": "Heading", "default": "How the Offer Works" },
 
     { "type": "header", "content": "Fine print" },
     { "type": "text", "id": "terms_eyebrow", "label": "Eyebrow", "default": "PROMOTION GUIDELINES" },
@@ -463,7 +539,7 @@
       "id": "terms",
       "label": "Terms (one per line)",
       "info": "Keep these in sync with the automatic discounts configured in Discounts.",
-      "default": "Buy 1 and Get 1 free on each 3.78L gallon. Offer applies while stock lasts.\nValid September 16–30, 2026.\nDelivery available in Palm Beach, Broward and Miami-Dade counties only.\nLocal pickup available in Pompano Beach, FL and at Safe Harbor Lauderdale Marine Center, Fort Lauderdale, FL.\nShipping calculated at checkout."
+      "default": "Buy one 3.78L gallon and get the small size of the same product free: 473ml, or 946ml for Max Pro Shampoo.\nOne free size per gallon, in the same order as the gallon.\nValid October 15 – November 1, 2026, while supplies last.\nLocal pickup in Pompano Beach, FL and at Safe Harbor Lauderdale Marine Center, Fort Lauderdale, FL.\nTaxes calculated at checkout."
     },
     { "type": "image_picker", "id": "terms_image", "label": "Image" },
 
@@ -480,18 +556,18 @@
     { "type": "text", "id": "contact_phone", "label": "Phone", "default": "(925) 876-9005" },
 
     { "type": "header", "content": "Final call to action" },
-    { "type": "text", "id": "final_eyebrow", "label": "Eyebrow", "default": "ACT BEFORE STOCK DEPLETES" },
+    { "type": "text", "id": "final_eyebrow", "label": "Eyebrow", "default": "OFFER ENDS NOVEMBER 1" },
     {
       "type": "text",
       "id": "final_heading",
       "label": "Heading",
-      "default": "Stock clearance runs until September 30, or until stock is gone."
+      "default": "A free small size with every gallon, through November 1."
     },
     {
       "type": "textarea",
       "id": "final_body",
       "label": "Body",
-      "default": "Maximize your business margins and keep your fleet or collection gleaming. Do not wait — these formulas are available while stock lasts."
+      "default": "Stock up for boat show season and the months after it. Available while supplies last."
     },
 
     { "type": "header", "content": "Footer" },
@@ -514,10 +590,17 @@
   "blocks": [
     {
       "type": "product",
-      "name": "Product",
-      "limit": 3,
+      "name": "Gallon + free size",
+      "limit": 6,
       "settings": [
-        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "product", "id": "product", "label": "Gallon" },
+        {
+          "type": "product",
+          "id": "gift",
+          "label": "Free size",
+          "info": "Must match the Get product of this gallon's automatic Buy X Get Y discount."
+        },
+        { "type": "text", "id": "gift_size", "label": "Free size label", "default": "473ML" },
         { "type": "text", "id": "title", "label": "Title override" },
         { "type": "text", "id": "subtitle", "label": "Subtitle" },
         { "type": "textarea", "id": "description", "label": "Description override" },
@@ -537,29 +620,35 @@
   ],
   "presets": [
     {
-      "name": "BOGO landing page",
+      "name": "Boat Show landing page",
       "blocks": [
+        { "type": "product" },
+        { "type": "product" },
         { "type": "product" },
         { "type": "product" },
         { "type": "product" },
         {
           "type": "step",
-          "settings": { "tag": "STEP 01", "title": "Add To Cart", "body": "Add your 3.78L gallons to the cart." }
+          "settings": {
+            "tag": "STEP 01",
+            "title": "Add the Gallon",
+            "body": "Each gallon goes into your cart together with its free small size."
+          }
         },
         {
           "type": "step",
           "settings": {
             "tag": "STEP 02",
             "title": "Automatic Discount",
-            "body": "The second gallon is set to $0 at checkout. No code required."
+            "body": "The small size is set to $0 at checkout. No code required."
           }
         },
         {
           "type": "step",
           "settings": {
             "tag": "STEP 03",
-            "title": "Delivery or Pickup",
-            "body": "Choose delivery within Palm Beach, Broward and Miami-Dade counties, or pick up locally at no shipping cost."
+            "title": "Local Pickup",
+            "body": "Pick up in Pompano Beach or at Safe Harbor Lauderdale Marine Center, Fort Lauderdale."
           }
         }
       ]

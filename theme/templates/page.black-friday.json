@@ -1,8 +1,8 @@
 {
-  "layout": "lp-boatshow",
+  "layout": "lp-blackfriday",
   "sections": {
-    "lp_boatshow": {
-      "type": "lp-boatshow",
+    "lp_blackfriday": {
+      "type": "lp-blackfriday",
       "blocks": {
         "product_hydro": {
           "type": "product",
@@ -95,6 +95,6 @@
     }
   },
   "order": [
-    "lp_boatshow"
+    "lp_blackfriday"
   ]
 }
