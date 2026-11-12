@@ -64,7 +64,8 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "For paint. Water runs right off and the car is easier to clean."
+            "subtitle": "For paint. Water runs right off and the car is easier to clean.",
+            "image": "shopify://shop_images/lp-bf-render-9h-special-edition-60ml.png"
           }
         },
         "bottle_black_ceramic_10h_60ml": {
@@ -74,7 +75,8 @@
             "in_boat": false,
             "in_car": true,
             "in_interior": false,
-            "subtitle": "For paint. Deep gloss, water runs off, easier to clean."
+            "subtitle": "For paint. Deep gloss, water runs off, easier to clean.",
+            "image": "shopify://shop_images/lp-bf-render-black-ceramic-10h-60ml.png"
           }
         },
         "bottle_pure_ceramic_coating_60ml": {
