@@ -360,6 +360,7 @@
             assign g_product = gift_std
             assign g_ok = gift_std_ok
             assign g_label = 'Standard'
+            assign g_image = section.settings.gift_standard_image
             assign g_fx = 0.282
             assign g_fy = 0.176
             assign g_fw = 0.38
@@ -368,10 +369,21 @@
             assign g_product = gift_mar
             assign g_ok = gift_mar_ok
             assign g_label = 'Marine'
+            assign g_image = section.settings.gift_marine_image
             assign g_fx = 0.282
             assign g_fy = 0.187
             assign g_fw = 0.35
             assign g_fh = 0.626
+          endif
+          # Image overrides (the campaign renders) are both placed in the
+          # standard sealant's frame.
+          if g_image != blank
+            assign g_fx = 0.282
+            assign g_fy = 0.176
+            assign g_fw = 0.38
+            assign g_fh = 0.687
+          else
+            assign g_image = g_product.featured_image
           endif
         -%}
         {%- if g_product != blank -%}
@@ -383,7 +395,7 @@
                 photos (fractions of the 600x800 image).
               {%- endcomment -%}
               {% render 'lp-blackfriday-bottle',
-                image: g_product.featured_image,
+                image: g_image,
                 alt: g_product.title,
                 width: 600,
                 widths: '300,450,600',
@@ -616,6 +628,8 @@
     { "type": "header", "content": "Free sealant" },
     { "type": "product", "id": "gift_standard", "label": "SiO2 Top Sealant, standard", "info": "Must match the \"gets\" products of the free sealant discount." },
     { "type": "product", "id": "gift_marine", "label": "SiO2 Top Sealant, Marine" },
+    { "type": "image_picker", "id": "gift_standard_image", "label": "SiO2 Top Sealant, standard: image", "info": "Optional. A cut-out on a transparent 3:4 canvas, framed like the store photo of the standard sealant." },
+    { "type": "image_picker", "id": "gift_marine_image", "label": "SiO2 Top Sealant, Marine: image", "info": "Optional. Same framing as the standard one." },
     { "type": "text", "id": "gift_eyebrow", "label": "Eyebrow", "default": "ON US" },
     { "type": "text", "id": "gift_heading", "label": "Heading", "default": "SiO2 Top Sealant 473ml" },
     { "type": "text", "id": "gift_tag", "label": "Tag", "default": "Free with every bottle" },

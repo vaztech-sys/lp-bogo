@@ -18,3 +18,10 @@ To redo them: `tools/cut.py` runs rembg on the renders (`OUT=<dir> python
 cut.py isnet-general-use <render files>`), and `tools/place.py <dir>` cuts the
 reflection and places each bottle on the canvas (the render-number to handle
 map is at the top of the script).
+
+Twelve more renders (Nov 12) cover every bottle on the page and both SiO2
+sprays. Five were cut here like the first ones (`place.py`, render numbers
+27–31); the other seven came already cut out from the Figma section
+"Produtos para a LP" and are placed by their own outline
+(`tools/place_figma.py`): the 60ml bottles in the bottle frame, the two
+sprays in the sealant frame the gift block uses.

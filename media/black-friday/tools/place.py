@@ -3,8 +3,8 @@ from PIL import Image, ImageDraw, ImageFilter
 import numpy as np
 S=sys.argv[1]
 W,H=900,1200
-names={"4":"black-ceramic-10h-60ml-marine","5":"glass-coating-60ml","6":"9h-special-edition-60ml-marine",
-       "16":"9h-special-edition-60ml","17":"black-ceramic-10h-60ml"}
+names={"27":"wheel-caliper-ceramic-60ml","28":"ppf-vinyl-ceramic-60ml","29":"leather-coating-60ml",
+       "30":"leather-ceramic-matte-60ml","31":"plastic-coating-60ml"}
 for n,h in names.items():
     im=Image.open(f"{S}/renders-cut/isnet-general-use-{n}.png").convert("RGBA")
     a=np.array(im)[:,:,3]; rows=(a>200).sum(1)
@@ -15,7 +15,7 @@ for n,h in names.items():
     # base is ~1140px; cutting at 1130 drops the last sliver of reflection. Measuring the base directly is unreliable where the
     # floor reflection is strong and continuous.
     top=int(np.argmax(rows>0))
-    base=top+1130-{'16':25,'17':12}.get(n,0)  # the gold v2 has a brighter floor line
+    base=top+1130-{'16':25,'17':12,'27':12,'28':12,'29':12,'30':12,'31':12}.get(n,0)  # the gold v2 has a brighter floor line
     # The body's columns (cap to label) bound the bottle; drop stray pixels.
     body=np.where((a[300:1150]>200).any(0))[0]
     x0,x1=int(body.min())-4,int(body.max())+4
