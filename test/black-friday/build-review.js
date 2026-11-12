@@ -198,6 +198,8 @@ const BAR = `
   // Campaign renders: served from Shopify Files, where they are uploaded under
   // the same names (the harness serves them from media/ locally).
   html = html.replace(/(["\s])\/media\//g, "$1https://cdn.shopify.com/s/files/1/0929/1828/4608/files/");
+  // Cache-bust with the build time, so a replaced file is never served stale.
+  html = html.replace(/(lp-bf-render-[a-z0-9-]+\.png)\?width=/g, "$1?v=" + Date.now() + "&width=");
 
   if (!html.includes("lp-review") || html.includes("/assets/lp-blackfriday")) throw new Error("inlining failed");
   fs.writeFileSync(out, html);
