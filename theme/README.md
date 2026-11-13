@@ -118,6 +118,7 @@ real cart test.
 |---|---|---|
 | **Black Friday LP (Nov 2026)** (`189978640704`) | Unpublished | Duplicate of the Boat Show theme with this branch's files |
 | **Black Friday teaser (until Nov 16)** (`190010491200`) | **Published** (since Nov 12, evening, Florida time) | Copy of the theme above whose `/` and `/pages/black-friday` show the "Black Friday is coming · Nov 27" teaser (no prices). Publish it to take the ended offer off the homepage now |
+| **Black Friday teaser v2 (share card)** (`190072553792`) | Unpublished | The published teaser plus the Black Friday share card (Nov 13). Publish it to replace the teaser |
 | Boat Show LP (Oct 15 – Nov 1) | Unpublished | The ended gallon offer; kept for rollback |
 | BOGO LP — mobile fixes | Unpublished | September page |
 
