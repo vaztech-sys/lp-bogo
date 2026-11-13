@@ -138,6 +138,16 @@ theme and cannot delete theme files: the duplicate still contains the old
 `lp-bogo*` and `lp-boatshow*` files. They are not used by the Black Friday
 templates and can be deleted in the code editor.
 
+## Share card
+
+`layout/lp-blackfriday.liquid` sets `og:image` to a 1200x630 campaign card:
+`assets/lp-blackfriday-share-teaser.jpg` on the teaser ("IS COMING", no
+percentages) and `assets/lp-blackfriday-share-offer.jpg` on the full page.
+Both show Fine Touch Ceramic Marine on the pedestal. The HTML they were
+rendered from is in `media/black-friday/share`. WhatsApp caches a link's
+preview for a while, so a changed card can take time to show on a link that
+was already shared.
+
 ## Rollback
 
 Republish **Boat Show LP (Oct 15 – Nov 1)** or **BOGO LP — mobile fixes** in

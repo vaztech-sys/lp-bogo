@@ -42,9 +42,15 @@
       {%- assign lp_title = 'Black Friday is coming to Malbor — Nov 27' -%}
       {%- assign lp_description = 'The Malbor Professional Line goes on sale on Black Friday, November 27. Ceramic coatings for the boat, the car and the interior. Local pickup in Pompano Beach and Fort Lauderdale.' -%}
     {%- endif -%}
-    {%- assign lp_share = all_products['9h-special-edition-60ml-marine'].featured_image -%}
-    {%- if lp_share -%}
-      {%- assign lp_image = lp_share | image_url: width: 1200, height: 630, crop: 'center' | prepend: 'https:' -%}
+    {%- comment -%}
+      Share card: a 1200x630 image made for the campaign (source in
+      media/black-friday/share), so a link pasted in WhatsApp or Instagram
+      shows Black Friday rather than a single product photo.
+    {%- endcomment -%}
+    {%- if content_for_layout contains 'data-lp-teaser' -%}
+      {%- assign lp_image = 'lp-blackfriday-share-teaser.jpg' | asset_url | prepend: 'https:' -%}
+    {%- else -%}
+      {%- assign lp_image = 'lp-blackfriday-share-offer.jpg' | asset_url | prepend: 'https:' -%}
     {%- endif -%}
 
     <title>{{ lp_title }}</title>
