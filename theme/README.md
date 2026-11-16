@@ -97,7 +97,7 @@ in the order, so extra sealants would be charged at full price.
 
 ## Shopify setup
 
-Created on 2026-11-11, **not active** (free-sealant limit removed on Nov 11 after Fernando's answers):
+Created on 2026-11-11. **Scheduled on Nov 16** (after confirmation) for Nov 27 00:00 to Nov 30 23:59 Florida time (`2026-11-27T05:00Z` to `2026-12-01T04:59Z`):
 
 | Object | Setting |
 |---|---|
